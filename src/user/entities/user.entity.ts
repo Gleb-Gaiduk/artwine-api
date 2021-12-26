@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -23,16 +23,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Field({ nullable: true })
-  // @Exclude({ toPlainOnly: true })
   @Column({ select: false })
-  password: string;
+  password?: string;
 
   @Column({ nullable: true })
   phone?: string;
 
   @Column({ default: false })
   isActivated: boolean;
+
+  @HideField()
+  @Column({ nullable: true })
+  refreshToken?: string;
 
   @CreateDateColumn()
   createdAt: Date;

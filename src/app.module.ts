@@ -5,6 +5,9 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { AuthResolver } from './auth/auth.resolver';
+import { AuthService } from './auth/auth.service';
 import { __prod__ } from './constants';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
@@ -17,6 +20,7 @@ import { UserService } from './user/user.service';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       // Sort schema lexicographically
       sortSchema: true,
+      context: ({ req }) => ({ req }),
     }),
 
     // TypeOrm configurations
@@ -37,12 +41,14 @@ import { UserService } from './user/user.service';
       },
       inject: [ConfigService],
     }),
-    ConfigModule.forRoot(),
     // End of TypeOrm configurations
 
+    ConfigModule.forRoot(),
+
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserService, UserResolver],
+  providers: [AppService, UserService, UserResolver, AuthService, AuthResolver],
 })
 export class AppModule {}

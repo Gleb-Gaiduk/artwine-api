@@ -1,24 +1,13 @@
-import { UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { UpdateUserInput } from './dto/updateUser.input';
 import { User } from './entities/user.entity';
-import { TransformInterceptor } from './interceptors/mapp-res.interceptor';
 import { UserNotExistsByIDInterceptor } from './interceptors/not-exists.interceptor';
 import { UserService } from './user.service';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
-
-  @Mutation(() => User)
-  @UseInterceptors(TransformInterceptor)
-  async createUser(
-    @Args('createUserInput', new ValidationPipe())
-    createUserInput: CreateUserInput,
-  ): Promise<User> {
-    return await this.userService.create(createUserInput);
-  }
 
   @Query(() => [User], { name: 'users' })
   async findAll(): Promise<User[]> {
@@ -27,19 +16,23 @@ export class UserResolver {
 
   @Query(() => User, { name: 'user' })
   @UseInterceptors(UserNotExistsByIDInterceptor)
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.userService.findOne(id);
+  async findOne(@Args('id', { type: () => Int }) id: number): Promise<User> {
+    return await this.userService.findOne(id);
   }
 
   @Mutation(() => User)
   @UseInterceptors(UserNotExistsByIDInterceptor)
-  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.update(updateUserInput.id, updateUserInput);
+  async updateUser(
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    return await this.userService.update(updateUserInput.id, updateUserInput);
   }
 
   @Mutation(() => Boolean)
   @UseInterceptors(UserNotExistsByIDInterceptor)
-  removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.userService.remove(id);
+  async removeUser(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<boolean> {
+    return await this.userService.remove(id);
   }
 }
