@@ -8,10 +8,13 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AuthResolver } from './auth/auth.resolver';
 import { AuthService } from './auth/auth.service';
+import { JWTAccessAuthGuard } from './auth/guards/JWTAccessAuth.guard';
 import { __prod__ } from './constants';
+import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
+
 @Module({
   imports: [
     GraphQLModule.forRoot({
@@ -35,7 +38,7 @@ import { UserService } from './user/user.service';
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          // logging: true,
+          logging: true,
           synchronize: !__prod__,
         } as TypeOrmModuleOptions;
       },
@@ -47,8 +50,20 @@ import { UserService } from './user/user.service';
 
     UserModule,
     AuthModule,
+    RoleModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserService, UserResolver, AuthService, AuthResolver],
+  providers: [
+    AppService,
+    UserService,
+    UserResolver,
+    AuthService,
+    AuthResolver,
+    // Allows to use dependency injection inside JWTAccessAuthGuards
+    {
+      provide: 'APP_GUARD',
+      useClass: JWTAccessAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

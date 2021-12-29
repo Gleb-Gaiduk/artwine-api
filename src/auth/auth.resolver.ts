@@ -5,9 +5,14 @@ import { UserWithTokens } from 'src/user/entities/userWithTokens.entity';
 import { TransformInterceptor } from 'src/user/interceptors/mapp-res.interceptor';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/currentUser.decorator';
+import { Public } from './decorators/public.decorator';
 import { AuthUserInput } from './dto/auth-user.input';
-import { JwtTokenPayload } from './entities/tokens.entity';
-import { GqlAuthGuard } from './guards/gqlAuthGuard.guard';
+import {
+  JwtAccessTokenPayload,
+  JwtRefreshTokenPayload,
+  Tokens,
+} from './entities/tokens.entity';
+import { JWTRefreshAuthGuard } from './guards/JWTRefreshAuth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -24,6 +29,7 @@ export class AuthResolver {
   }
 
   // LOGIN
+  @Public()
   @Mutation(() => UserWithTokens)
   @UseInterceptors(TransformInterceptor)
   async login(
@@ -35,12 +41,17 @@ export class AuthResolver {
 
   // LOGOUT
   @Mutation(() => Boolean)
-  @UseGuards(GqlAuthGuard)
-  async logout(@CurrentUser() user: JwtTokenPayload): Promise<boolean> {
+  async logout(@CurrentUser() user: JwtAccessTokenPayload): Promise<boolean> {
     return await this.authService.logout(user.sub);
   }
 
-  // async refreshToken() {
-  //   this.authService.refreshToken();
-  // }
+  // REFRESH TOKEN
+  @Public()
+  @Mutation(() => Tokens)
+  @UseGuards(JWTRefreshAuthGuard)
+  async refreshToken(
+    @CurrentUser() user: JwtRefreshTokenPayload,
+  ): Promise<Tokens> {
+    return await this.authService.refreshToken(user.sub, user.refreshToken);
+  }
 }

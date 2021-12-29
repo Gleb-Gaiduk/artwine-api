@@ -12,7 +12,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserWithTokens } from 'src/user/entities/userWithTokens.entity';
 import { Repository } from 'typeorm';
 import { AuthUserInput } from './dto/auth-user.input';
-import { JwtTokenPayload, Tokens } from './entities/tokens.entity';
+import { JwtAccessTokenPayload, Tokens } from './entities/tokens.entity';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,6 @@ export class AuthService {
     @InjectRepository(User) private users: Repository<User>,
   ) {}
 
-  // REGISTER
   async register(createUserInput: CreateUserInput): Promise<UserWithTokens> {
     const existingUser = await this.getExistingUserByEmail(
       createUserInput.email,
@@ -58,7 +57,6 @@ export class AuthService {
     };
   }
 
-  // LOGIN
   async login(authUserInput: AuthUserInput): Promise<UserWithTokens> {
     const existingUser = await this.getExistingUserByEmail(
       authUserInput.email,
@@ -97,10 +95,49 @@ export class AuthService {
     await this.users.update(userId, { refreshToken: null });
     return true;
   }
-  // async refreshToken() {}
+
+  async refreshToken(userId: number, refreshToken: string): Promise<Tokens> {
+    const existingUser = await this.users.findOne(userId);
+
+    if (!existingUser) {
+      throw new ForbiddenException(
+        `Access denied: user with id ${userId} doesn't exist`,
+      );
+    }
+
+    if (!existingUser.refreshToken) {
+      throw new ForbiddenException(
+        `Access denied: user with id ${userId} is logged out`,
+      );
+    }
+
+    const areRefreshTokensMatched = await argon2.verify(
+      existingUser.refreshToken,
+      refreshToken,
+    );
+
+    if (!areRefreshTokensMatched) {
+      throw new ForbiddenException(
+        'Access denied: refresh tokens are not matched',
+      );
+    }
+
+    const jwtTokens = await this.generateJWTTokens(
+      existingUser.id,
+      existingUser.email,
+    );
+    await this.updateRefreshTokenForUser(
+      existingUser.id,
+      jwtTokens.refresh_token,
+    );
+
+    return {
+      ...jwtTokens,
+    };
+  }
 
   async generateJWTTokens(userId: number, email: string): Promise<Tokens> {
-    const jwtTokenPayload: JwtTokenPayload = {
+    const jwtTokenPayload: JwtAccessTokenPayload = {
       sub: userId,
       email,
     };
@@ -108,7 +145,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtTokenPayload, {
         secret: this.configService.get('JWT_ACCESS_SECRET'),
-        expiresIn: 60 * 15, // 15 min
+        expiresIn: 60 * 15 * 10, // 15 min * 10
       }),
 
       this.jwtService.signAsync(jwtTokenPayload, {

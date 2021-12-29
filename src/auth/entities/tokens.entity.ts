@@ -7,9 +7,14 @@ export class Tokens {
 }
 
 @ObjectType()
-export class JwtTokenPayload {
+export class JwtAccessTokenPayload {
   sub: number;
   email: string;
   iat?: number;
   exp?: number;
+}
+
+@ObjectType()
+export class JwtRefreshTokenPayload extends JwtAccessTokenPayload {
+  refreshToken: string;
 }

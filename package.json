@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@casl/ability": "^5.4.3",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.0.0",
@@ -29,12 +30,14 @@
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/typeorm": "^8.0.2",
+    "@types/lodash": "^4.14.178",
     "apollo-server-express": "^3.5.0",
     "argon2": "^0.28.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "graphql": "^15",
     "graphql-tools": "^8.2.0",
+    "lodash": "^4.17.21",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

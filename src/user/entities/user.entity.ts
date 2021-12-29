@@ -1,8 +1,11 @@
 import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Role } from 'src/role/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -35,6 +38,12 @@ export class User {
   @HideField()
   @Column({ nullable: true })
   refreshToken?: string;
+
+  @ManyToMany(() => Role, (role) => role.id, {
+    cascade: true,
+  })
+  @JoinTable()
+  roles: Role[];
 
   @CreateDateColumn()
   createdAt: Date;

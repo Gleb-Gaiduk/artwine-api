@@ -10,18 +10,16 @@ export class UserService {
     @InjectRepository(User)
     private users: Repository<User>,
   ) {}
-  // GET
+
   async findAll(): Promise<User[]> {
     return await this.users.find();
   }
 
-  // GET/:id
   async findOne(id: number): Promise<User> {
     const user = await this.users.findOne(id);
     return user;
   }
 
-  // PATCH
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
     let updatedUser;
 
@@ -34,7 +32,6 @@ export class UserService {
     return updatedUser;
   }
 
-  // DELETE
   async remove(id: number): Promise<boolean> {
     await this.users.delete(id);
     return true;
