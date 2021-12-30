@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuthResolver } from './auth/auth.resolver';
 import { AuthService } from './auth/auth.service';
 import { JWTAccessAuthGuard } from './auth/guards/JWTAccessAuth.guard';
+import { CaslModule } from './casl/casl.module';
 import { __prod__ } from './constants';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
@@ -38,7 +39,7 @@ import { UserService } from './user/user.service';
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          logging: true,
+          // logging: true,
           synchronize: !__prod__,
         } as TypeOrmModuleOptions;
       },
@@ -51,6 +52,7 @@ import { UserService } from './user/user.service';
     UserModule,
     AuthModule,
     RoleModule,
+    CaslModule,
   ],
   controllers: [AppController],
   providers: [

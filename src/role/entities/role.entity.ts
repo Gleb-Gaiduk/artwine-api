@@ -29,9 +29,9 @@ export class Role {
 
 export enum UserRoles {
   ADMIN = 'admin',
-  CUSTOMER = 'customer',
   COURIER = 'courier',
   CONTENT_MANAGER = 'content_manager',
+  SALES_MANAGER = 'sales_manager',
 }
 
 registerEnumType(UserRoles, {

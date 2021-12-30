@@ -92,7 +92,7 @@ enum UserRoles {
   ADMIN
   CONTENT_MANAGER
   COURIER
-  CUSTOMER
+  SALES_MANAGER
 }
 
 type UserWithTokens {

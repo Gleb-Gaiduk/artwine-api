@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RoleModule } from 'src/role/role.module';
 import { User } from 'src/user/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { AuthResolver } from './auth.resolver';
@@ -15,6 +16,7 @@ import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
     UserModule,
     TypeOrmModule.forFeature([User]),
     ConfigModule,
+    RoleModule,
   ],
   providers: [
     AuthService,

@@ -7,18 +7,22 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
+import { isEmpty } from 'lodash';
+import { RoleService } from 'src/role/role.service';
 import { CreateUserInput } from 'src/user/dto/createUser.input';
 import { User } from 'src/user/entities/user.entity';
 import { UserWithTokens } from 'src/user/entities/userWithTokens.entity';
 import { Repository } from 'typeorm';
 import { AuthUserInput } from './dto/auth-user.input';
-import { JwtAccessTokenPayload, Tokens } from './entities/tokens.entity';
+import { JwtAccessTokenInput } from './dto/jwtToken.input';
+import { Tokens } from './entities/tokens.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    private roleService: RoleService,
     @InjectRepository(User) private users: Repository<User>,
   ) {}
 
@@ -42,10 +46,10 @@ export class AuthService {
     if (createUserInput.phone) user.phone = createUserInput.phone;
 
     const createdUser = await this.users.save(user);
-    const jwtTokens = await this.generateJWTTokens(
-      createdUser.id,
-      createdUser.email,
-    );
+    const jwtTokens = await this.generateJWTTokens({
+      sub: createdUser.id,
+      email: createdUser.email,
+    });
     await this.updateRefreshTokenForUser(
       createdUser.id,
       jwtTokens.refresh_token,
@@ -76,10 +80,18 @@ export class AuthService {
       throw new ForbiddenException('User email or password is incorrect');
     }
 
-    const jwtTokens = await this.generateJWTTokens(
-      existingUser.id,
-      existingUser.email,
-    );
+    const jwtTokenPayload: JwtAccessTokenInput = {
+      sub: existingUser.id,
+      email: existingUser.email,
+    };
+
+    const { roles } = await this.roleService.findForUser(existingUser.id);
+
+    if (!isEmpty(roles)) {
+      jwtTokenPayload.roles = roles;
+    }
+
+    const jwtTokens = await this.generateJWTTokens(jwtTokenPayload);
     await this.updateRefreshTokenForUser(
       existingUser.id,
       jwtTokens.refresh_token,
@@ -122,10 +134,18 @@ export class AuthService {
       );
     }
 
-    const jwtTokens = await this.generateJWTTokens(
-      existingUser.id,
-      existingUser.email,
-    );
+    const jwtTokenPayload: JwtAccessTokenInput = {
+      sub: existingUser.id,
+      email: existingUser.email,
+    };
+
+    const { roles } = await this.roleService.findForUser(existingUser.id);
+
+    if (!isEmpty(roles)) {
+      jwtTokenPayload.roles = roles;
+    }
+
+    const jwtTokens = await this.generateJWTTokens(jwtTokenPayload);
     await this.updateRefreshTokenForUser(
       existingUser.id,
       jwtTokens.refresh_token,
@@ -136,12 +156,9 @@ export class AuthService {
     };
   }
 
-  async generateJWTTokens(userId: number, email: string): Promise<Tokens> {
-    const jwtTokenPayload: JwtAccessTokenPayload = {
-      sub: userId,
-      email,
-    };
-
+  async generateJWTTokens(
+    jwtTokenPayload: JwtAccessTokenInput,
+  ): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(jwtTokenPayload, {
         secret: this.configService.get('JWT_ACCESS_SECRET'),

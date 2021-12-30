@@ -1,5 +1,9 @@
-import { UseInterceptors } from '@nestjs/common';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AppAbility } from 'src/casl/casl-ability.factory';
+import { CheckPolicies } from 'src/casl/decorators/checkPolicies.decorator';
+import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { Action } from 'src/casl/types';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { User } from './entities/user.entity';
 import { UserNotExistsByIDInterceptor } from './interceptors/not-exists.interceptor';
@@ -10,6 +14,8 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(() => [User], { name: 'users' })
+  @UseGuards(PoliciesGuard)
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, User))
   async findAll(): Promise<User[]> {
     return await this.userService.findAll();
   }

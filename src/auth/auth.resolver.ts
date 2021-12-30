@@ -8,10 +8,10 @@ import { CurrentUser } from './decorators/currentUser.decorator';
 import { Public } from './decorators/public.decorator';
 import { AuthUserInput } from './dto/auth-user.input';
 import {
-  JwtAccessTokenPayload,
-  JwtRefreshTokenPayload,
-  Tokens,
-} from './entities/tokens.entity';
+  JwtAccessTokenInput,
+  JwtRefreshTokenInput,
+} from './dto/jwtToken.input';
+import { Tokens } from './entities/tokens.entity';
 import { JWTRefreshAuthGuard } from './guards/JWTRefreshAuth.guard';
 
 @Resolver()
@@ -41,7 +41,7 @@ export class AuthResolver {
 
   // LOGOUT
   @Mutation(() => Boolean)
-  async logout(@CurrentUser() user: JwtAccessTokenPayload): Promise<boolean> {
+  async logout(@CurrentUser() user: JwtAccessTokenInput): Promise<boolean> {
     return await this.authService.logout(user.sub);
   }
 
@@ -50,8 +50,11 @@ export class AuthResolver {
   @Mutation(() => Tokens)
   @UseGuards(JWTRefreshAuthGuard)
   async refreshToken(
-    @CurrentUser() user: JwtRefreshTokenPayload,
+    @CurrentUser() userDataFromJWT: JwtRefreshTokenInput,
   ): Promise<Tokens> {
-    return await this.authService.refreshToken(user.sub, user.refreshToken);
+    return await this.authService.refreshToken(
+      userDataFromJWT.sub,
+      userDataFromJWT.refreshToken,
+    );
   }
 }
