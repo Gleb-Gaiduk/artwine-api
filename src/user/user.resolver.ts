@@ -1,5 +1,8 @@
-import { UseInterceptors } from '@nestjs/common';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
+import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { ReadUserPolicyHandler } from 'src/casl/handlers/user/read-user.handler';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { User } from './entities/user.entity';
 import { UserNotExistsByIDInterceptor } from './interceptors/not-exists.interceptor';
@@ -15,6 +18,8 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user' })
+  @UseGuards(PoliciesGuard)
+  @CheckPolicies(new ReadUserPolicyHandler())
   @UseInterceptors(UserNotExistsByIDInterceptor)
   async findOne(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return await this.userService.findOne(id);
