@@ -1,2 +1,0 @@
-const ctx = GqlExecutionContext.create(context);
-    const { user }: { user: JwtAccessTokenInput } = ctx.getContext().req;

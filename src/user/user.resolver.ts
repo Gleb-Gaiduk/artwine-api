@@ -19,7 +19,7 @@ export class UserResolver {
 
   @Query(() => User, { name: 'user' })
   @UseGuards(PoliciesGuard)
-  @CheckPolicies(new ReadUserPolicyHandler())
+  @CheckPolicies(ReadUserPolicyHandler)
   @UseInterceptors(UserNotExistsByIDInterceptor)
   async findOne(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return await this.userService.findOne(id);

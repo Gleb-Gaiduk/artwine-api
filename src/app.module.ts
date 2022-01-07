@@ -9,12 +9,12 @@ import { AuthModule } from './auth/auth.module';
 import { AuthResolver } from './auth/auth.resolver';
 import { AuthService } from './auth/auth.service';
 import { JWTAccessAuthGuard } from './auth/guards/JWTAccessAuth.guard';
+import { CaslModule } from './casl/casl.module';
 import { __prod__ } from './constants';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
-import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
