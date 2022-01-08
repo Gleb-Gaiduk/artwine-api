@@ -3,12 +3,12 @@ import { Action, IPolicyHandler } from 'src/casl/types';
 import { User } from 'src/user/entities/user.entity';
 
 export class ReadUserPolicyHandler implements IPolicyHandler {
-  constructor(private userFromJWT: any) {}
+  constructor(private requestedUserId: number) {}
 
   handle(ability: AppAbility) {
-    if (!this.userFromJWT) return false;
+    if (!this.requestedUserId) return false;
     const mockedUser = new User();
-    mockedUser.id = 32;
+    mockedUser.id = this.requestedUserId;
 
     return ability.can(Action.Read, mockedUser);
   }
