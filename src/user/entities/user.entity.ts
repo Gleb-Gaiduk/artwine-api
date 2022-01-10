@@ -40,6 +40,7 @@ export class User {
   refreshToken?: string;
 
   @ManyToMany(() => Role, (role) => role.id, {
+    nullable: true,
     cascade: true,
   })
   @JoinTable()

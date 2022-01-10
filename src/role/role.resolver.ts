@@ -1,14 +1,20 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
+import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { ManageRolePolicyHandler } from './../casl/handlers/role/manage-role.handler';
 import { CreateRoleInput, EditRoleInput } from './dto/create-role.input';
 import { Role } from './entities/role.entity';
 import { RolesForUser } from './entities/rolesForUser.entity';
 import { RoleService } from './role.service';
 
 @Resolver(() => Role)
+@UseGuards(PoliciesGuard)
 export class RoleResolver {
   constructor(private readonly roleService: RoleService) {}
 
   @Query(() => RolesForUser, { name: 'userRoles' })
+  @CheckPolicies(ManageRolePolicyHandler)
   async getUserRoles(
     @Args('id', { type: () => Int }) id: number,
   ): Promise<RolesForUser> {
@@ -16,6 +22,7 @@ export class RoleResolver {
   }
 
   @Mutation(() => Role)
+  @CheckPolicies(ManageRolePolicyHandler)
   createRole(
     @Args('createRoleInput') createRoleInput: CreateRoleInput,
   ): Promise<Role> {
@@ -23,6 +30,7 @@ export class RoleResolver {
   }
 
   @Mutation(() => Boolean)
+  @CheckPolicies(ManageRolePolicyHandler)
   removeRole(
     @Args('removeRoleInput') removeRoleInput: EditRoleInput,
   ): Promise<boolean> {
@@ -30,6 +38,7 @@ export class RoleResolver {
   }
 
   @Mutation(() => RolesForUser)
+  @CheckPolicies(ManageRolePolicyHandler)
   async assignRole(
     @Args('assignRoleInput') assignRoleInput: EditRoleInput,
   ): Promise<RolesForUser> {

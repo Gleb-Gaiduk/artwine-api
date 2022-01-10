@@ -18,7 +18,7 @@ import { JWTRefreshAuthGuard } from './guards/JWTRefreshAuth.guard';
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
-  // CREATE USER
+  @Public()
   @Mutation(() => UserWithTokens)
   @UseInterceptors(TransformInterceptor)
   async createUser(
@@ -28,7 +28,6 @@ export class AuthResolver {
     return await this.authService.register(createUserInput);
   }
 
-  // LOGIN
   @Public()
   @Mutation(() => UserWithTokens)
   @UseInterceptors(TransformInterceptor)
@@ -39,13 +38,11 @@ export class AuthResolver {
     return await this.authService.login(authUserInput);
   }
 
-  // LOGOUT
   @Mutation(() => Boolean)
   async logout(@CurrentUser() user: JwtAccessTokenInput): Promise<boolean> {
     return await this.authService.logout(user.sub);
   }
 
-  // REFRESH TOKEN
   @Public()
   @Mutation(() => Tokens)
   @UseGuards(JWTRefreshAuthGuard)

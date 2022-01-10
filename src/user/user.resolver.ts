@@ -3,12 +3,15 @@ import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
 import { PoliciesGuard } from 'src/casl/guards/policies.guard';
 import { ReadUserPolicyHandler } from 'src/casl/handlers/user/read-user.handler';
+import { RemoveUserPolicyHandler } from 'src/casl/handlers/user/remove-user.handler';
+import { UpdateUserPolicyHandler } from './../casl/handlers/user/update-user.handler';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { User } from './entities/user.entity';
 import { UserNotExistsByIDInterceptor } from './interceptors/not-exists.interceptor';
 import { UserService } from './user.service';
 
 @Resolver(() => User)
+@UseGuards(PoliciesGuard)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
@@ -18,7 +21,6 @@ export class UserResolver {
   }
 
   @Query(() => User, { name: 'user' })
-  @UseGuards(PoliciesGuard)
   @CheckPolicies(ReadUserPolicyHandler)
   @UseInterceptors(UserNotExistsByIDInterceptor)
   async findOne(@Args('id', { type: () => Int }) id: number): Promise<User> {
@@ -26,6 +28,7 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
+  @CheckPolicies(UpdateUserPolicyHandler)
   @UseInterceptors(UserNotExistsByIDInterceptor)
   async updateUser(
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
@@ -34,6 +37,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
+  @CheckPolicies(RemoveUserPolicyHandler)
   @UseInterceptors(UserNotExistsByIDInterceptor)
   async removeUser(
     @Args('id', { type: () => Int }) id: number,
