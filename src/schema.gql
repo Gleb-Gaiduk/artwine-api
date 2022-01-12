@@ -30,6 +30,35 @@ input EditRoleInput {
   userId: Float!
 }
 
+input FilterInput {
+  field: String!
+  operation: FilterOperation!
+  relationField: String
+  values: [String!]!
+}
+
+enum FilterOperation {
+  EQ
+  GE
+  GT
+  IN
+  LE
+  LIKE
+  LT
+  NE
+}
+
+enum FilterOperator {
+  AND
+  OR
+}
+
+input FiltersExpressionInput {
+  childExpressions: [FiltersExpressionInput!]
+  filters: [FilterInput!]
+  operator: FilterOperator!
+}
+
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
   createRole(createRoleInput: CreateRoleInput!): Role!
@@ -45,7 +74,7 @@ type Mutation {
 type Query {
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
-  users: [User!]!
+  users(filters: FiltersExpressionInput): UserWithPagination!
 }
 
 type Role {
@@ -93,6 +122,11 @@ enum UserRoles {
   CONTENT_MANAGER
   COURIER
   SALES_MANAGER
+}
+
+type UserWithPagination {
+  data: [User!]!
+  total: Float!
 }
 
 type UserWithTokens {

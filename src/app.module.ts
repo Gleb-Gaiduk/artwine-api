@@ -39,7 +39,7 @@ import { UserService } from './user/user.service';
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          // logging: true,
+          logging: true,
           synchronize: !__prod__,
         } as TypeOrmModuleOptions;
       },

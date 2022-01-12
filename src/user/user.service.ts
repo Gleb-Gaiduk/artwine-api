@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilterQueryBuilder } from 'src/filter/builders/filter-query.builder';
 import { getManager, Repository } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
+import { FiltersExpressionInput } from './../filter/dto/filters-expression.input';
 import { UpdateUserInput } from './dto/updateUser.input';
+import { UserWithPagination } from './entities/user-with-pagination.entity';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -11,8 +15,28 @@ export class UserService {
     private users: Repository<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.users.find();
+  async findAll(
+    filters: FiltersExpressionInput | null,
+  ): Promise<UserWithPagination> {
+    const limit = 50;
+    const page = 1;
+    const filterQueryBuilder = new FilterQueryBuilder<User>(
+      this.users,
+      filters,
+    );
+
+    const queryBuilder: SelectQueryBuilder<User> = filterQueryBuilder.build();
+    const [result, total] = await queryBuilder
+      .orderBy('"updatedAt"', 'DESC')
+      .take(limit)
+      .skip((page - 1) * limit)
+      .getManyAndCount();
+
+    return {
+      data: result,
+      total,
+    };
+    // return await this.users.find();
   }
 
   async findOne(id: number): Promise<User> {

@@ -5,7 +5,9 @@ import { PoliciesGuard } from 'src/casl/guards/policies.guard';
 import { ReadUserPolicyHandler } from 'src/casl/handlers/user/read-user.handler';
 import { RemoveUserPolicyHandler } from 'src/casl/handlers/user/remove-user.handler';
 import { UpdateUserPolicyHandler } from './../casl/handlers/user/update-user.handler';
+import { FiltersExpressionInput } from './../filter/dto/filters-expression.input';
 import { UpdateUserInput } from './dto/updateUser.input';
+import { UserWithPagination } from './entities/user-with-pagination.entity';
 import { User } from './entities/user.entity';
 import { UserNotExistsByIDInterceptor } from './interceptors/not-exists.interceptor';
 import { UserService } from './user.service';
@@ -15,9 +17,11 @@ import { UserService } from './user.service';
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(() => [User], { name: 'users' })
-  async findAll(): Promise<User[]> {
-    return await this.userService.findAll();
+  @Query(() => UserWithPagination, { name: 'users' })
+  async findAll(
+    @Args('filters', { nullable: true }) filters: FiltersExpressionInput,
+  ): Promise<UserWithPagination> {
+    return await this.userService.findAll(filters);
   }
 
   @Query(() => User, { name: 'user' })
