@@ -15,6 +15,8 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
+import { ProductModule } from './product/product.module';
+import { ProductCategoryModule } from './product-category/product-category.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { UserService } from './user/user.service';
     AuthModule,
     RoleModule,
     CaslModule,
+    ProductModule,
+    ProductCategoryModule,
   ],
   controllers: [AppController],
   providers: [

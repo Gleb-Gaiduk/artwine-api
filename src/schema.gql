@@ -7,6 +7,11 @@ input AuthUserInput {
   password: String!
 }
 
+input CreateProductInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
 input CreateRoleInput {
   description: String!
   title: UserRoles!
@@ -61,13 +66,16 @@ input FiltersExpressionInput {
 
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
+  createProduct(createProductInput: CreateProductInput!): Product!
   createRole(createRoleInput: CreateRoleInput!): Role!
   createUser(createUserInput: CreateUserInput!): UserWithTokens!
   login(authUserInput: AuthUserInput!): UserWithTokens!
   logout: Boolean!
   refreshToken: Tokens!
+  removeProduct(id: Int!): Product!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
+  updateProduct(updateProductInput: UpdateProductInput!): Product!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
@@ -81,7 +89,13 @@ input PaginationOptionsInput {
   page: Float!
 }
 
+type Product {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
 type Query {
+  product(id: Int!): Product!
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
   users(filters: FiltersExpressionInput, pagination: PaginationOptionsInput, sort: SortOptionsInput): PaginatedUsers!
@@ -113,6 +127,12 @@ enum SortOrder {
 type Tokens {
   access_token: String!
   refresh_token: String!
+}
+
+input UpdateProductInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
 }
 
 input UpdateUserInput {
