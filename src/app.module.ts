@@ -11,12 +11,12 @@ import { AuthService } from './auth/auth.service';
 import { JWTAccessAuthGuard } from './auth/guards/JWTAccessAuth.guard';
 import { CaslModule } from './casl/casl.module';
 import { __prod__ } from './constants';
+import { ProductCategoryModule } from './product/product-category/product-category.module';
+import { ProductModule } from './product/product.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
-import { ProductModule } from './product/product.module';
-import { ProductCategoryModule } from './product-category/product-category.module';
 
 @Module({
   imports: [
