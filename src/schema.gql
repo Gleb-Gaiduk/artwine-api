@@ -71,10 +71,20 @@ type Mutation {
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
+type PaginatedUsers {
+  results: [User!]!
+  total: Int!
+}
+
+input PaginationOptionsInput {
+  limit: Float!
+  page: Float!
+}
+
 type Query {
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
-  users(filters: FiltersExpressionInput): UserWithPagination!
+  users(filters: FiltersExpressionInput, pagination: PaginationOptionsInput, sort: SortOptionsInput): PaginatedUsers!
 }
 
 type Role {
@@ -88,6 +98,16 @@ type Role {
 type RolesForUser {
   id: ID!
   roles: [UserRoles!]!
+}
+
+input SortOptionsInput {
+  field: String!
+  order: SortOrder!
+}
+
+enum SortOrder {
+  ASC
+  DESC
 }
 
 type Tokens {
@@ -122,11 +142,6 @@ enum UserRoles {
   CONTENT_MANAGER
   COURIER
   SALES_MANAGER
-}
-
-type UserWithPagination {
-  data: [User!]!
-  total: Float!
 }
 
 type UserWithTokens {

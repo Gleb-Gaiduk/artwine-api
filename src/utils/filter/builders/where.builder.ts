@@ -1,8 +1,8 @@
 import { isEmpty, map } from 'lodash';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
+import { FilterInput } from '../dto/filter.input';
+import { FiltersExpressionInput } from '../dto/filters-expression.input';
 import { FilterOperation } from '../enums';
-import { FilterInput } from './../dto/filter.input';
-import { FiltersExpressionInput } from './../dto/filters-expression.input';
 
 type ParamValue = string | number | Array<string | number>;
 
