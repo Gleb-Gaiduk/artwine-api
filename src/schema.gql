@@ -7,6 +7,10 @@ input AuthUserInput {
   password: String!
 }
 
+input CreateCategoryInput {
+  category: String!
+}
+
 input CreateProductInput {
   """Example field (placeholder)"""
   exampleField: Int!
@@ -67,6 +71,7 @@ input FiltersExpressionInput {
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
   createProduct(createProductInput: CreateProductInput!): Product!
+  createProductCategory(createCategoryInput: CreateCategoryInput!): ProductCategory!
   createRole(createRoleInput: CreateRoleInput!): Role!
   createUser(createUserInput: CreateUserInput!): UserWithTokens!
   login(authUserInput: AuthUserInput!): UserWithTokens!
@@ -94,8 +99,16 @@ type Product {
   exampleField: Int!
 }
 
+type ProductCategory {
+  category: String!
+  createdAt: DateTime!
+  id: ID!
+  updatedAt: DateTime!
+}
+
 type Query {
   product(id: Int!): Product!
+  productCategories: [ProductCategory!]!
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
   users(filters: FiltersExpressionInput, pagination: PaginationOptionsInput, sort: SortOptionsInput): PaginatedUsers!
