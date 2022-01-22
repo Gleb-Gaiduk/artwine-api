@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'lodash';
-import { User } from 'src/user/entities/user.entity';
-import { UsersUtils } from 'src/user/utils/user.utils';
 import { getConnection, Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
+import { UsersUtils } from '../user/utils/user.utils';
 import { CreateRoleInput, EditRoleInput } from './dto/create-role.input';
 import { Role, UserRoles } from './entities/role.entity';
 import {

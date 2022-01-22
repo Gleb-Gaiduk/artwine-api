@@ -1,8 +1,8 @@
 import { UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { CreateUserInput } from 'src/user/dto/createUser.input';
-import { UserWithTokens } from 'src/user/entities/userWithTokens.entity';
-import { TransformInterceptor } from 'src/user/interceptors/mapp-res.interceptor';
+import { CreateUserInput } from '../user/dto/createUser.input';
+import { UserWithTokens } from '../user/entities/userWithTokens.entity';
+import { TransformInterceptor } from '../user/interceptors/mapp-res.interceptor';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/currentUser.decorator';
 import { Public } from './decorators/public.decorator';

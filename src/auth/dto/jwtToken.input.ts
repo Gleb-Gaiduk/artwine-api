@@ -1,5 +1,5 @@
 import { InputType } from '@nestjs/graphql';
-import { UserRoles } from 'src/role/entities/role.entity';
+import { UserRoles } from '../../role/entities/role.entity';
 
 @InputType()
 export class JwtAccessTokenInput {

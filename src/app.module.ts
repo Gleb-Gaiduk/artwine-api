@@ -23,7 +23,7 @@ import { UserService } from './user/user.service';
     GraphQLModule.forRoot({
       // Code first approach
       // Path where  generated schema will be created
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: join(process.cwd(), './schema.gql'),
       // Sort schema lexicographically
       sortSchema: true,
       context: ({ req }) => ({ req }),

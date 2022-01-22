@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FilterQueryBuilder } from 'src/utils/filter/builders/filter-query.builder';
+import { getManager, Repository } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
+import { FilterQueryBuilder } from '../utils/filter/builders/filter-query.builder';
+import { FiltersExpressionInput } from '../utils/filter/dto/filters-expression.input';
+import { PaginationOptionsInput } from '../utils/paginate/dto/pagination-options.input';
 import {
   SortOptionsInput,
   SortOrder,
-} from 'src/utils/sort/dto/sort-options.input';
-import { getManager, Repository } from 'typeorm';
-import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
-import { FiltersExpressionInput } from '../utils/filter/dto/filters-expression.input';
-import { PaginationOptionsInput } from '../utils/paginate/dto/pagination-options.input';
+} from '../utils/sort/dto/sort-options.input';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { PaginatedUsers } from './entities/paginated-users.entity';
 import { User } from './entities/user.entity';

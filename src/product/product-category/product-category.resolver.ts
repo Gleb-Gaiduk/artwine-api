@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { PoliciesGuard } from '../../casl/guards/policies.guard';
 import { CreateCategoryInput } from './dto/create-category.input';
 import { ProductCategory } from './entities/product-category.entity';
 import { ProductCategoryService } from './product-category.service';

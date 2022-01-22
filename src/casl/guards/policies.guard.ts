@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ContextIdFactory, ModuleRef, Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { JwtAccessTokenInput } from 'src/auth/dto/jwtToken.input';
+import { JwtAccessTokenInput } from '../../auth/dto/jwtToken.input';
 import { AppAbility, CaslAbilityFactory } from '../casl-ability.factory';
 import { CHECK_POLICIES_KEY } from '../decorators/check-policies.decorator';
 import { PolicyHandler } from '../types';

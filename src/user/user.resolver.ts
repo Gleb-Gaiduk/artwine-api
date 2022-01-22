@@ -1,12 +1,12 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
-import { PoliciesGuard } from 'src/casl/guards/policies.guard';
-import { ReadUserPolicyHandler } from 'src/casl/handlers/user/read-user.handler';
-import { RemoveUserPolicyHandler } from 'src/casl/handlers/user/remove-user.handler';
-import { SortOptionsInput } from 'src/utils/sort/dto/sort-options.input';
+import { CheckPolicies } from '../casl/decorators/check-policies.decorator';
+import { PoliciesGuard } from '../casl/guards/policies.guard';
+import { ReadUserPolicyHandler } from '../casl/handlers/user/read-user.handler';
+import { RemoveUserPolicyHandler } from '../casl/handlers/user/remove-user.handler';
 import { FiltersExpressionInput } from '../utils/filter/dto/filters-expression.input';
 import { PaginationOptionsInput } from '../utils/paginate/dto/pagination-options.input';
+import { SortOptionsInput } from '../utils/sort/dto/sort-options.input';
 import { UpdateUserPolicyHandler } from './../casl/handlers/user/update-user.handler';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { PaginatedUsers } from './entities/paginated-users.entity';

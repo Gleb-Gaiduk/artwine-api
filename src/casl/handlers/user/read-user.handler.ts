@@ -1,6 +1,6 @@
-import { AppAbility } from 'src/casl/casl-ability.factory';
-import { Action, IPolicyHandler } from 'src/casl/types';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../../../user/entities/user.entity';
+import { AppAbility } from '../../casl-ability.factory';
+import { Action, IPolicyHandler } from '../../types';
 
 export class ReadUserPolicyHandler implements IPolicyHandler {
   constructor(private requestedUserId: number) {}

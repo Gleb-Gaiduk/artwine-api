@@ -8,29 +8,23 @@ import { ProductCategory } from './entities/product-category.entity';
 export class ProductCategoryService {
   constructor(
     @InjectRepository(ProductCategory)
-    private categories: Repository<ProductCategory>,
+    private categoriesRepo: Repository<ProductCategory>,
   ) {}
 
   async create({ category }: CreateCategoryInput): Promise<ProductCategory> {
-    const existingCategory = await this.getCategoryByName(category);
+    let existingCategory = await this.getCategoryByName(category);
+    if (!existingCategory) existingCategory = new ProductCategory();
+    existingCategory.category = category.toLowerCase().trim();
 
-    if (existingCategory)
-      throw new BadRequestException(
-        `Product category "${category}" already exists`,
-      );
-
-    const newCategory = new ProductCategory();
-    newCategory.category = category.toLowerCase().trim();
-
-    return await this.categories.save(newCategory);
+    return await this.categoriesRepo.save(existingCategory);
   }
 
   async findAll(): Promise<ProductCategory[]> {
-    return await this.categories.find();
+    return await this.categoriesRepo.find();
   }
 
   async getCategoryByName(category: string): Promise<ProductCategory> {
-    return await this.categories.findOne({
+    return await this.categoriesRepo.findOne({
       where: { category },
     });
   }
@@ -43,7 +37,7 @@ export class ProductCategoryService {
         `Product category "${category}" doesn't exist`,
       );
 
-    await this.categories.delete({ category });
+    await this.categoriesRepo.delete({ category });
     return true;
   }
 }

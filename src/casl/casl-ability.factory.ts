@@ -6,9 +6,9 @@ import {
   InferSubjects,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { JwtAccessTokenInput } from 'src/auth/dto/jwtToken.input';
-import { Role, UserRoles } from 'src/role/entities/role.entity';
-import { User } from 'src/user/entities/user.entity';
+import { JwtAccessTokenInput } from '../auth/dto/jwtToken.input';
+import { Role, UserRoles } from '../role/entities/role.entity';
+import { User } from '../user/entities/user.entity';
 import { Action } from './types';
 import { hasRole } from './utils/hasRole.utils';
 

@@ -1,5 +1,5 @@
 import { Provider } from '@nestjs/common';
-import { ManageRolePolicyHandler } from 'src/casl/handlers/role/manage-role.handler';
+import { ManageRolePolicyHandler } from '../../handlers/role/manage-role.handler';
 
 export const ManageRolePolicyProvider: Provider = {
   provide: ManageRolePolicyHandler,

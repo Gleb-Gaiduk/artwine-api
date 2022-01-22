@@ -1,8 +1,8 @@
 import { Provider } from '@nestjs/common';
 import { CONTEXT } from '@nestjs/graphql';
 import { Request } from 'express';
-import { ReadUserPolicyHandler } from 'src/casl/handlers/user/read-user.handler';
-import { getIdFromQuery } from 'src/casl/utils/regex.utils';
+import { ReadUserPolicyHandler } from '../../handlers/user/read-user.handler';
+import { getIdFromQuery } from '../../utils/regex.utils';
 
 export const ReadUserPolicyProvider: Provider = {
   provide: ReadUserPolicyHandler,

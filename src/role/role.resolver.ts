@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
-import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { CheckPolicies } from '../casl/decorators/check-policies.decorator';
+import { PoliciesGuard } from '../casl/guards/policies.guard';
 import { ManageRolePolicyHandler } from './../casl/handlers/role/manage-role.handler';
 import { CreateRoleInput, EditRoleInput } from './dto/create-role.input';
 import { Role } from './entities/role.entity';

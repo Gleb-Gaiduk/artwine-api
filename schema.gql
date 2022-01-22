@@ -103,7 +103,7 @@ type Product {
   id: ID!
   imagePath: String!
   itemPrice: String!
-  propertyValues: [ProductPropertyValue!]!
+  properties: [ProductProperty!]!
   title: String!
   updatedAt: DateTime!
 }
@@ -114,6 +114,11 @@ type ProductCategory {
   id: ID!
   properties: [ProductPropertyType!]!
   updatedAt: DateTime!
+}
+
+type ProductProperty {
+  type: ProductPropertyType!
+  value: ProductPropertyValue!
 }
 
 type ProductPropertyType {
@@ -127,7 +132,6 @@ type ProductPropertyValue {
   createdAt: DateTime!
   description: String
   id: ID!
-  propertyType: ProductPropertyType!
   title: String!
   updatedAt: DateTime!
 }
