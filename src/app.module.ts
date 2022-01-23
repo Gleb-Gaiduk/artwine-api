@@ -17,6 +17,7 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
+import { PaginateService } from './utils/paginate/paginate.service';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { UserService } from './user/user.service';
     UserResolver,
     AuthService,
     AuthResolver,
+    PaginateService,
     // Allows to use dependency injection inside JWTAccessAuthGuards
     {
       provide: 'APP_GUARD',

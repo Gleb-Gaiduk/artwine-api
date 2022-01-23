@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getManager, Repository } from 'typeorm';
-import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
-import { FilterQueryBuilder } from '../utils/filter/builders/filter-query.builder';
-import { FiltersExpressionInput } from '../utils/filter/dto/filters-expression.input';
-import { PaginationOptionsInput } from '../utils/paginate/dto/pagination-options.input';
-import {
-  SortOptionsInput,
-  SortOrder,
-} from '../utils/sort/dto/sort-options.input';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
+import { PaginateService } from '../utils/paginate/paginate.service';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { PaginatedUsers } from './entities/paginated-users.entity';
 import { User } from './entities/user.entity';
@@ -17,40 +11,20 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private users: Repository<User>,
+    private readonly usersRepo: Repository<User>,
+
+    private readonly paginateService: PaginateService,
   ) {}
 
-  async findAll(
-    pagination: PaginationOptionsInput | null,
-    filters: FiltersExpressionInput | null,
-    sort: SortOptionsInput | null,
-  ): Promise<PaginatedUsers> {
-    const limit = pagination?.limit || 10;
-    const page = pagination?.page || 1;
-    const sortField = sort?.field || 'updatedAt';
-    const sortOrder = sort?.order || SortOrder.DESC;
-
-    const filterQueryBuilder = new FilterQueryBuilder<User>(
-      this.users,
-      filters,
+  async findAll(queryOptions: EntityQueryInput): Promise<PaginatedUsers> {
+    return await this.paginateService.findAllPaginatedWithFilters<User>(
+      this.usersRepo,
+      queryOptions,
     );
-
-    const queryBuilder: SelectQueryBuilder<User> = filterQueryBuilder.build();
-
-    const [results, total] = await queryBuilder
-      .orderBy(`"${sortField}"`, sortOrder)
-      .take(limit)
-      .skip((page - 1) * limit)
-      .getManyAndCount();
-
-    return {
-      results,
-      total,
-    };
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.users.findOne(id);
+    const user = await this.usersRepo.findOne(id);
     return user;
   }
 
@@ -67,7 +41,7 @@ export class UserService {
   }
 
   async remove(id: number): Promise<boolean> {
-    await this.users.delete(id);
+    await this.usersRepo.delete(id);
     return true;
   }
 }

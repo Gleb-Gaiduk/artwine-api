@@ -4,9 +4,7 @@ import { CheckPolicies } from '../casl/decorators/check-policies.decorator';
 import { PoliciesGuard } from '../casl/guards/policies.guard';
 import { ReadUserPolicyHandler } from '../casl/handlers/user/read-user.handler';
 import { RemoveUserPolicyHandler } from '../casl/handlers/user/remove-user.handler';
-import { FiltersExpressionInput } from '../utils/filter/dto/filters-expression.input';
-import { PaginationOptionsInput } from '../utils/paginate/dto/pagination-options.input';
-import { SortOptionsInput } from '../utils/sort/dto/sort-options.input';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { UpdateUserPolicyHandler } from './../casl/handlers/user/update-user.handler';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { PaginatedUsers } from './entities/paginated-users.entity';
@@ -21,11 +19,9 @@ export class UserResolver {
 
   @Query(() => PaginatedUsers, { name: 'users' })
   async findAll(
-    @Args('pagination', { nullable: true }) pagination: PaginationOptionsInput,
-    @Args('filters', { nullable: true }) filters: FiltersExpressionInput,
-    @Args('sort', { nullable: true }) sort: SortOptionsInput,
+    @Args('options') options: EntityQueryInput,
   ): Promise<PaginatedUsers> {
-    return await this.userService.findAll(pagination, filters, sort);
+    return await this.userService.findAll(options);
   }
 
   @Query(() => User, { name: 'user' })

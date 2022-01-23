@@ -1,6 +1,6 @@
 import { InputType, registerEnumType } from '@nestjs/graphql';
 
-@InputType({ isAbstract: true })
+@InputType()
 export class SortOptionsInput {
   field: string;
   order: SortOrder;

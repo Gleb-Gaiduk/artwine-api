@@ -43,6 +43,13 @@ input EditRoleInput {
   userId: Float!
 }
 
+input EntityQueryInput {
+  filters: FiltersExpressionInput
+  pagination: PaginationOptionsInput
+  search: SearchQueryInput
+  sort: SortOptionsInput
+}
+
 input FilterInput {
   field: String!
   operation: FilterOperation!
@@ -84,6 +91,11 @@ type Mutation {
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
   updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type PaginatedProducts {
+  results: [Product!]!
+  total: Int!
 }
 
 type PaginatedUsers {
@@ -144,9 +156,10 @@ input PropertyForProductInput {
 
 type Query {
   productCategories: [ProductCategory!]!
+  products(options: EntityQueryInput): PaginatedProducts!
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
-  users(filters: FiltersExpressionInput, pagination: PaginationOptionsInput, sort: SortOptionsInput): PaginatedUsers!
+  users(options: EntityQueryInput!): PaginatedUsers!
 }
 
 type Role {
@@ -160,6 +173,10 @@ type Role {
 type RolesForUser {
   id: ID!
   roles: [UserRoles!]!
+}
+
+input SearchQueryInput {
+  q: String!
 }
 
 input SortOptionsInput {

@@ -3,7 +3,10 @@ import { ModuleRef } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionFor } from 'nest-transact';
 import { Repository } from 'typeorm';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
+import { PaginateService } from './../utils/paginate/paginate.service';
 import { CreateProductInput } from './dto/create-product.input';
+import { PaginatedProducts } from './entities/paginated-products.entity';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './product-category/entities/product-category.entity';
 import { ProductCategoryService } from './product-category/product-category.service';
@@ -22,6 +25,7 @@ export class ProductService extends TransactionFor<ProductService> {
     private readonly categoryService: ProductCategoryService,
     private readonly propertyTypeService: ProductPropertyTypeService,
     private readonly propertyValueService: ProductPropertyValueService,
+    private readonly paginateService: PaginateService,
 
     private readonly productPropertiesUtils: ProductPropertiesUtils,
     moduleRef: ModuleRef,
@@ -46,42 +50,46 @@ export class ProductService extends TransactionFor<ProductService> {
     const product_propertyValueIntersections = [];
 
     for (const productProperty of properties) {
-      let existingPropertyType = await this.propertyTypeService.findOneByTitle(
-        productProperty.propertyType,
-      );
+      let propertyType;
+      const existingPropertyType =
+        await this.propertyTypeService.findOneByTitle(
+          productProperty.propertyType,
+        );
 
       if (!existingPropertyType) {
-        existingPropertyType = await this.propertyTypeService.create({
+        propertyType = await this.propertyTypeService.create({
           title: productProperty.propertyType,
         });
+      } else {
+        propertyType = existingPropertyType;
       }
 
-      // Push if there is no such existed relation
+      category_propertyTypeIntersections.push(propertyType);
 
-      category_propertyTypeIntersections.push(existingPropertyType);
-
-      let existingPropertyValue =
+      let propertyValue;
+      const existingPropertyValue =
         await this.propertyValueService.findOneByTitle(
           productProperty.propertyValue,
         );
 
       if (!existingPropertyValue) {
-        existingPropertyValue = await this.propertyValueService.create({
+        propertyValue = await this.propertyValueService.create({
           title: productProperty.propertyValue,
           description: productProperty.propertyDescription || null,
         });
+      } else {
+        propertyValue = existingPropertyValue;
       }
 
       const hasTypeValueCombination =
-        existingPropertyValue.type &&
-        existingPropertyValue.type.title === existingPropertyType.title;
+        propertyValue.type && propertyValue.type.title === propertyType.title;
 
       if (!hasTypeValueCombination) {
-        existingPropertyValue.type = existingPropertyType;
-        await this.propertyValueService.save(existingPropertyValue);
+        propertyValue.type = propertyType;
+        await this.propertyValueService.save(propertyValue);
       }
 
-      product_propertyValueIntersections.push(existingPropertyValue);
+      product_propertyValueIntersections.push(propertyValue);
     }
 
     let existingCategory = await this.categoryService.getCategoryByName(
@@ -128,9 +136,35 @@ export class ProductService extends TransactionFor<ProductService> {
     return createdProduct;
   }
 
-  // findAll() {
-  //   return `This action returns all product`;
-  // }
+  async findAll(queryOptions: EntityQueryInput): Promise<PaginatedProducts> {
+    const { results, total } =
+      await this.paginateService.findAllPaginatedWithFilters<Product>(
+        this.productsRepo,
+        queryOptions,
+      );
+
+    // Consider passing array of paginated ids
+    const propertyValuesWithTypes =
+      await this.propertyValueService.findAllWithType();
+
+    for (const product of results) {
+      product.category = await this.productsRepo
+        .createQueryBuilder()
+        .relation(Product, 'category')
+        .of(product)
+        .loadOne();
+
+      product.properties =
+        await this.productPropertiesUtils.mapProductProperties(
+          propertyValuesWithTypes,
+        );
+    }
+
+    return {
+      results,
+      total,
+    };
+  }
 
   // findOne(id: number) {
   //   return `This action returns a #${id} product`;

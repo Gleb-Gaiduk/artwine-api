@@ -1,6 +1,8 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Connection } from 'typeorm';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { CreateProductInput } from './dto/create-product.input';
+import { PaginatedProducts } from './entities/paginated-products.entity';
 import { Product } from './entities/product.entity';
 import { ProductService } from './product.service';
 
@@ -22,10 +24,15 @@ export class ProductResolver {
     });
   }
 
-  // @Query(() => [Product], { name: 'product' })
-  // findAll() {
-  //   return this.productService.findAll();
-  // }
+  @Query(() => PaginatedProducts, { name: 'products' })
+  findAll(
+    @Args('options', {
+      nullable: true,
+    })
+    options?: EntityQueryInput,
+  ): Promise<PaginatedProducts> {
+    return this.productService.findAll(options);
+  }
 
   // @Query(() => Product, { name: 'product' })
   // findOne(@Args('id', { type: () => Int }) id: number) {

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PaginateService } from '../utils/paginate/paginate.service';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './product-category/entities/product-category.entity';
 import { ProductCategoryService } from './product-category/product-category.service';
@@ -21,6 +22,7 @@ import { ProductService } from './product.service';
     ProductPropertyTypeService,
     ProductPropertyValueService,
     ProductPropertiesUtils,
+    PaginateService,
   ],
   imports: [
     TypeOrmModule.forFeature([
