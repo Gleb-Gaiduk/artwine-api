@@ -1,5 +1,6 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Connection } from 'typeorm';
+import { Public } from '../auth/decorators/public.decorator';
 import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { CreateProductInput } from './dto/create-product.input';
 import { PaginatedProducts } from './entities/paginated-products.entity';
@@ -24,6 +25,7 @@ export class ProductResolver {
     });
   }
 
+  @Public()
   @Query(() => PaginatedProducts, { name: 'products' })
   findAll(
     @Args('options', {
@@ -34,10 +36,11 @@ export class ProductResolver {
     return this.productService.findAll(options);
   }
 
-  // @Query(() => Product, { name: 'product' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.productService.findOne(id);
-  // }
+  @Public()
+  @Query(() => Product, { name: 'product' })
+  findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.productService.findOne(id);
+  }
 
   // @Mutation(() => Product)
   // updateProduct(
@@ -49,8 +52,8 @@ export class ProductResolver {
   //   );
   // }
 
-  // @Mutation(() => Product)
-  // removeProduct(@Args('id', { type: () => Int }) id: number) {
-  //   return this.productService.remove(id);
-  // }
+  @Mutation(() => Boolean)
+  removeProduct(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
+    return this.productService.remove(id);
+  }
 }

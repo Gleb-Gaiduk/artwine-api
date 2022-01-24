@@ -88,6 +88,7 @@ type Mutation {
   login(authUserInput: AuthUserInput!): UserWithTokens!
   logout: Boolean!
   refreshToken: Tokens!
+  removeProduct(id: Int!): Boolean!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
   updateUser(updateUserInput: UpdateUserInput!): User!
@@ -155,6 +156,7 @@ input PropertyForProductInput {
 }
 
 type Query {
+  product(id: Int!): Product!
   productCategories: [ProductCategory!]!
   products(options: EntityQueryInput): PaginatedProducts!
   user(id: Int!): User!

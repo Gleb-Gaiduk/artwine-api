@@ -166,15 +166,37 @@ export class ProductService extends TransactionFor<ProductService> {
     };
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} product`;
-  // }
+  async findOne(id: number): Promise<Product> {
+    const product = await this.productsRepo.findOne(id, {
+      relations: ['category', 'propertyValues'],
+    });
+
+    if (!product) {
+      throw new BadRequestException(`Product with id "${id}" does not exist`);
+    }
+
+    const propertyValuesWithTypes =
+      await this.propertyValueService.findAllWithType();
+
+    product.properties = await this.productPropertiesUtils.mapProductProperties(
+      propertyValuesWithTypes,
+    );
+
+    return product;
+  }
 
   // update(id: number, updateProductInput: UpdateProductInput) {
   //   return `This action updates a #${id} product`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} product`;
-  // }
+  async remove(id: number): Promise<boolean> {
+    const product = await this.productsRepo.findOne(id);
+
+    if (!product) {
+      throw new BadRequestException(`Product with id "${id}" does not exist`);
+    }
+
+    await this.productsRepo.delete(id);
+    return true;
+  }
 }
