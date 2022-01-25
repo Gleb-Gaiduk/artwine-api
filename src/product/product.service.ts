@@ -1,16 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isEmpty } from 'lodash';
 import { TransactionFor } from 'nest-transact';
 import { Repository } from 'typeorm';
 import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { PaginateService } from './../utils/paginate/paginate.service';
 import { CreateProductInput } from './dto/create-product.input';
+import { UpdateProductInput } from './dto/update-product.input';
 import { PaginatedProducts } from './entities/paginated-products.entity';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './product-category/entities/product-category.entity';
 import { ProductCategoryService } from './product-category/product-category.service';
 import { ProductPropertyTypeService } from './product-property/product-property-type/product-property-type.service';
+import { ProductPropertyValue } from './product-property/product-property-value/entities/product-property-value.entity';
 import { ProductPropertyValueService } from './product-property/product-property-value/product-property.service';
 import { ProductPropertiesUtils } from './product-property/utils/product-properties.utils';
 
@@ -38,80 +41,32 @@ export class ProductService extends TransactionFor<ProductService> {
       where: { title: createProductInput.title },
     });
 
-    if (existingProduct)
+    if (existingProduct) {
       throw new BadRequestException(
         `Product "${createProductInput.title}" already exists`,
       );
-
-    // Managing properties
-    const { properties } = createProductInput;
-
-    const category_propertyTypeIntersections = [];
-    const product_propertyValueIntersections = [];
-
-    for (const productProperty of properties) {
-      let propertyType;
-      const existingPropertyType =
-        await this.propertyTypeService.findOneByTitle(
-          productProperty.propertyType,
-        );
-
-      if (!existingPropertyType) {
-        propertyType = await this.propertyTypeService.create({
-          title: productProperty.propertyType,
-        });
-      } else {
-        propertyType = existingPropertyType;
-      }
-
-      category_propertyTypeIntersections.push(propertyType);
-
-      let propertyValue;
-      const existingPropertyValue =
-        await this.propertyValueService.findOneByTitle(
-          productProperty.propertyValue,
-        );
-
-      if (!existingPropertyValue) {
-        propertyValue = await this.propertyValueService.create({
-          title: productProperty.propertyValue,
-          description: productProperty.propertyDescription || null,
-        });
-      } else {
-        propertyValue = existingPropertyValue;
-      }
-
-      const hasTypeValueCombination =
-        propertyValue.type && propertyValue.type.title === propertyType.title;
-
-      if (!hasTypeValueCombination) {
-        propertyValue.type = propertyType;
-        await this.propertyValueService.save(propertyValue);
-      }
-
-      product_propertyValueIntersections.push(propertyValue);
     }
 
-    let existingCategory = await this.categoryService.getCategoryByName(
+    const [
+      category_propertyTypeIntersections,
+      product_propertyValueIntersections,
+    ] = await this.productPropertiesUtils.saveProperties(
+      createProductInput.properties,
+    );
+
+    let productCategory = await this.categoryService.getSaved(
       createProductInput.category,
     );
 
-    if (!existingCategory) {
-      existingCategory = await this.categoryService.create({
-        category: createProductInput.category,
-      });
-    }
-
     // Add ProductCategory_ProductPropertyType relation record
-    existingCategory.properties = category_propertyTypeIntersections;
-
-    const updatedCategory = await this.categoriesRepo.save(existingCategory);
+    productCategory.properties = category_propertyTypeIntersections;
+    productCategory = await this.categoriesRepo.save(productCategory);
 
     const { title, description, imagePath, itemPrice } = createProductInput;
     const newProductInstance = new Product();
     newProductInstance.title = title;
     newProductInstance.description = description;
-    newProductInstance.category = updatedCategory;
+    newProductInstance.category = productCategory;
     newProductInstance.imagePath = imagePath;
     newProductInstance.itemPrice = itemPrice;
 
@@ -125,15 +80,56 @@ export class ProductService extends TransactionFor<ProductService> {
       relations: ['category', 'propertyValues'],
     });
 
-    const propertyValuesWithTypes =
-      await this.propertyValueService.findAllWithType();
+    const propertiesValueIDs = product_propertyValueIntersections.map(
+      (value) => value.id,
+    );
 
-    createdProduct.properties =
-      await this.productPropertiesUtils.mapProductProperties(
-        propertyValuesWithTypes,
-      );
+    const propertyValuesWithTypes =
+      await this.propertyValueService.findWithTypeByIDs(propertiesValueIDs);
+
+    createdProduct.properties = await this.productPropertiesUtils.mapProperties(
+      propertyValuesWithTypes,
+    );
 
     return createdProduct;
+  }
+
+  async update(id: number, updateProductInput: UpdateProductInput) {
+    const existingProduct = await this.productsRepo.findOne(id);
+
+    if (existingProduct) {
+      throw new BadRequestException(`Product with id "${id}" does not exist`);
+    }
+
+    let productCategory;
+    if (updateProductInput.category) {
+      productCategory = await this.categoryService.getSaved(
+        updateProductInput.category,
+      );
+    }
+
+    if (!isEmpty(updateProductInput.properties)) {
+      const [
+        category_propertyTypeIntersections,
+        product_propertyValueIntersections,
+      ] = await this.productPropertiesUtils.saveProperties(
+        updateProductInput.properties,
+      );
+
+      productCategory.properties = category_propertyTypeIntersections;
+      productCategory = await this.categoriesRepo.save(productCategory);
+    }
+
+    const { title, description, imagePath, itemPrice } = updateProductInput;
+    const updatedProductInstance = new Product();
+    if (title) updatedProductInstance.title = title;
+    if (description) updatedProductInstance.description = description;
+    updatedProductInstance.category = productCategory;
+    if (imagePath) updatedProductInstance.imagePath = imagePath;
+    if (itemPrice) updatedProductInstance.itemPrice = itemPrice;
+
+    await this.productsRepo.update(id, updatedProductInstance);
+    const updatedProduct = await this.productsRepo.findOne(id);
   }
 
   async findAll(queryOptions: EntityQueryInput): Promise<PaginatedProducts> {
@@ -143,10 +139,6 @@ export class ProductService extends TransactionFor<ProductService> {
         queryOptions,
       );
 
-    // Consider passing array of paginated ids
-    const propertyValuesWithTypes =
-      await this.propertyValueService.findAllWithType();
-
     for (const product of results) {
       product.category = await this.productsRepo
         .createQueryBuilder()
@@ -154,10 +146,23 @@ export class ProductService extends TransactionFor<ProductService> {
         .of(product)
         .loadOne();
 
-      product.properties =
-        await this.productPropertiesUtils.mapProductProperties(
-          propertyValuesWithTypes,
-        );
+      const productPropertiesValues: ProductPropertyValue[] =
+        await this.productsRepo
+          .createQueryBuilder()
+          .relation(Product, 'propertyValues')
+          .of(product)
+          .loadMany();
+
+      const propertyValuesIDs = productPropertiesValues.map(
+        (value) => value.id,
+      );
+
+      const propertyValuesWithTypes =
+        await this.propertyValueService.findWithTypeByIDs(propertyValuesIDs);
+
+      product.properties = await this.productPropertiesUtils.mapProperties(
+        propertyValuesWithTypes,
+      );
     }
 
     return {
@@ -175,19 +180,17 @@ export class ProductService extends TransactionFor<ProductService> {
       throw new BadRequestException(`Product with id "${id}" does not exist`);
     }
 
-    const propertyValuesWithTypes =
-      await this.propertyValueService.findAllWithType();
+    const propertyValuesIDs = product.propertyValues.map((value) => value.id);
 
-    product.properties = await this.productPropertiesUtils.mapProductProperties(
+    const propertyValuesWithTypes =
+      await this.propertyValueService.findWithTypeByIDs(propertyValuesIDs);
+
+    product.properties = await this.productPropertiesUtils.mapProperties(
       propertyValuesWithTypes,
     );
 
     return product;
   }
-
-  // update(id: number, updateProductInput: UpdateProductInput) {
-  //   return `This action updates a #${id} product`;
-  // }
 
   async remove(id: number): Promise<boolean> {
     const product = await this.productsRepo.findOne(id);
