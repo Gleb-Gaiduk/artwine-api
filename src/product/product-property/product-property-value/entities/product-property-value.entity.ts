@@ -4,7 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -24,7 +24,7 @@ export class ProductPropertyValue {
   description?: string;
 
   @HideField()
-  @OneToOne(() => ProductPropertyType, { cascade: true })
+  @ManyToOne(() => ProductPropertyType, { cascade: true })
   @JoinColumn()
   type?: ProductPropertyType;
 

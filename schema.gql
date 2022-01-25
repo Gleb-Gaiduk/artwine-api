@@ -91,6 +91,7 @@ type Mutation {
   removeProduct(id: Int!): Boolean!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
+  updateProduct(updateProductInput: UpdateProductInput!): Product!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
@@ -194,6 +195,16 @@ enum SortOrder {
 type Tokens {
   access_token: String!
   refresh_token: String!
+}
+
+input UpdateProductInput {
+  category: String
+  description: String
+  id: Int!
+  imagePath: String
+  itemPrice: String
+  properties: [PropertyForProductInput!]
+  title: String
 }
 
 input UpdateUserInput {

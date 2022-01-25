@@ -20,7 +20,7 @@ export class CreateProductInput {
   @IsNumberString({ message: 'Product price should be a positive number' })
   itemPrice: string;
 
-  @ArrayNotEmpty()
+  @ArrayNotEmpty({ message: 'Product can not be created without properties' })
   @Type(() => PropertyForProductInput)
   properties: PropertyForProductInput[];
 }

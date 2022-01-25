@@ -69,12 +69,10 @@ export class ProductService extends TransactionFor<ProductService> {
     newProductInstance.category = productCategory;
     newProductInstance.imagePath = imagePath;
     newProductInstance.itemPrice = itemPrice;
+    // Add Product_ProductPropertyValue relation record
+    newProductInstance.propertyValues = product_propertyValueIntersections;
 
     const newProduct = await this.productsRepo.save(newProductInstance);
-
-    // Add Product_ProductPropertyValue relation record
-    newProduct.propertyValues = product_propertyValueIntersections;
-    await this.productsRepo.save(newProduct);
 
     const createdProduct = await this.productsRepo.findOne(newProduct.id, {
       relations: ['category', 'propertyValues'],
@@ -94,10 +92,13 @@ export class ProductService extends TransactionFor<ProductService> {
     return createdProduct;
   }
 
-  async update(id: number, updateProductInput: UpdateProductInput) {
+  async update(
+    id: number,
+    updateProductInput: UpdateProductInput,
+  ): Promise<Product> {
     const existingProduct = await this.productsRepo.findOne(id);
 
-    if (existingProduct) {
+    if (!existingProduct) {
       throw new BadRequestException(`Product with id "${id}" does not exist`);
     }
 
@@ -106,8 +107,15 @@ export class ProductService extends TransactionFor<ProductService> {
       productCategory = await this.categoryService.getSaved(
         updateProductInput.category,
       );
+    } else {
+      productCategory = (
+        await this.productsRepo.findOne(id, {
+          relations: ['category'],
+        })
+      ).category;
     }
 
+    let propertyValues;
     if (!isEmpty(updateProductInput.properties)) {
       const [
         category_propertyTypeIntersections,
@@ -115,6 +123,7 @@ export class ProductService extends TransactionFor<ProductService> {
       ] = await this.productPropertiesUtils.saveProperties(
         updateProductInput.properties,
       );
+      propertyValues = product_propertyValueIntersections;
 
       productCategory.properties = category_propertyTypeIntersections;
       productCategory = await this.categoriesRepo.save(productCategory);
@@ -122,14 +131,38 @@ export class ProductService extends TransactionFor<ProductService> {
 
     const { title, description, imagePath, itemPrice } = updateProductInput;
     const updatedProductInstance = new Product();
+    updatedProductInstance.id = id;
     if (title) updatedProductInstance.title = title;
     if (description) updatedProductInstance.description = description;
     updatedProductInstance.category = productCategory;
     if (imagePath) updatedProductInstance.imagePath = imagePath;
     if (itemPrice) updatedProductInstance.itemPrice = itemPrice;
+    if (!isEmpty(propertyValues)) {
+      updatedProductInstance.propertyValues = propertyValues;
+    }
 
-    await this.productsRepo.update(id, updatedProductInstance);
-    const updatedProduct = await this.productsRepo.findOne(id);
+    await this.productsRepo.save(updatedProductInstance);
+    const updatedProduct = await this.productsRepo.findOne(id, {
+      relations: ['category', 'propertyValues'],
+    });
+
+    let propertiesValueIDs;
+    if (!isEmpty(propertyValues)) {
+      propertiesValueIDs = propertyValues.map((value) => value.id);
+    } else {
+      propertiesValueIDs = updatedProduct.propertyValues.map(
+        (value) => value.id,
+      );
+    }
+
+    const propertyValuesWithTypes =
+      await this.propertyValueService.findWithTypeByIDs(propertiesValueIDs);
+
+    updatedProduct.properties = await this.productPropertiesUtils.mapProperties(
+      propertyValuesWithTypes,
+    );
+
+    return updatedProduct;
   }
 
   async findAll(queryOptions: EntityQueryInput): Promise<PaginatedProducts> {

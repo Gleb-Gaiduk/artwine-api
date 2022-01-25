@@ -20,6 +20,21 @@ export class ProductPropertyTypeService {
     return await this.propertyTypesRepo.save(propertyTypeInstance);
   }
 
+  async getSaved(propertyType): Promise<ProductPropertyType> {
+    let propertyTypeResult;
+    const existingPropertyType = await this.findOneByTitle(propertyType);
+
+    if (!existingPropertyType) {
+      propertyTypeResult = await this.create({
+        title: propertyType,
+      });
+    } else {
+      propertyTypeResult = existingPropertyType;
+    }
+
+    return propertyTypeResult;
+  }
+
   async findOneByTitle(title: string): Promise<ProductPropertyType> {
     return await this.propertyTypesRepo.findOne({ where: { title } });
   }

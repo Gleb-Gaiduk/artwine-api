@@ -3,6 +3,7 @@ import { Connection } from 'typeorm';
 import { Public } from '../auth/decorators/public.decorator';
 import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { CreateProductInput } from './dto/create-product.input';
+import { UpdateProductInput } from './dto/update-product.input';
 import { PaginatedProducts } from './entities/paginated-products.entity';
 import { Product } from './entities/product.entity';
 import { ProductService } from './product.service';
@@ -42,15 +43,15 @@ export class ProductResolver {
     return this.productService.findOne(id);
   }
 
-  // @Mutation(() => Product)
-  // updateProduct(
-  //   @Args('updateProductInput') updateProductInput: UpdateProductInput,
-  // ) {
-  //   return this.productService.update(
-  //     updateProductInput.id,
-  //     updateProductInput,
-  //   );
-  // }
+  @Mutation(() => Product)
+  updateProduct(
+    @Args('updateProductInput') updateProductInput: UpdateProductInput,
+  ): Promise<Product> {
+    return this.productService.update(
+      updateProductInput.id,
+      updateProductInput,
+    );
+  }
 
   @Mutation(() => Boolean)
   removeProduct(@Args('id', { type: () => Int }) id: number): Promise<boolean> {

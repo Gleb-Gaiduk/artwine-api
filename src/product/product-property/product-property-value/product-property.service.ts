@@ -24,6 +24,25 @@ export class ProductPropertyValueService {
     return await this.propertyValuesRepo.create(propertyTypeInstance);
   }
 
+  async getSaved(
+    propertyValue: string,
+    propertyDescription: string,
+  ): Promise<ProductPropertyValue> {
+    let propertyValueResult;
+    const existingPropertyValue = await this.findOneByTitle(propertyValue);
+
+    if (!existingPropertyValue) {
+      propertyValueResult = await this.create({
+        title: propertyValue,
+        description: propertyDescription || null,
+      });
+    } else {
+      propertyValueResult = existingPropertyValue;
+    }
+
+    return propertyValueResult;
+  }
+
   async findOneByTitle(title: string): Promise<ProductPropertyValue> {
     return await this.propertyValuesRepo.findOne({
       where: { title },
@@ -31,8 +50,10 @@ export class ProductPropertyValueService {
     });
   }
 
-  async findAllWithType(): Promise<ProductPropertyValue[]> {
-    return await this.propertyValuesRepo.find({ relations: ['type'] });
+  async findWithTypeByIDs(ids: number[]): Promise<ProductPropertyValue[]> {
+    return await this.propertyValuesRepo.findByIds(ids, {
+      relations: ['type'],
+    });
   }
 
   async save(

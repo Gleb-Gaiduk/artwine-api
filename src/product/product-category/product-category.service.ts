@@ -19,6 +19,21 @@ export class ProductCategoryService {
     return await this.categoriesRepo.save(existingCategory);
   }
 
+  async getSaved(category: string): Promise<ProductCategory> {
+    let categoryResult;
+    const existingCategory = await this.getCategoryByName(category);
+
+    if (existingCategory) {
+      categoryResult = existingCategory;
+    } else {
+      categoryResult = await this.create({
+        category,
+      });
+    }
+
+    return categoryResult;
+  }
+
   async findAll(): Promise<ProductCategory[]> {
     return await this.categoriesRepo.find();
   }
