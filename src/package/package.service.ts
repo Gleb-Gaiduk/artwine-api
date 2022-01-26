@@ -17,7 +17,7 @@ export class PackageService {
 
     if (existingPackage) {
       throw new BadRequestException(
-        `Package with the title "${existingPackage.title}" already exsists.`,
+        `Package with the title "${existingPackage.title}" already exists.`,
       );
     }
 
@@ -30,20 +30,50 @@ export class PackageService {
     return await this.packageRepo.save(packageInstance);
   }
 
-  findAll() {
-    return `This action returns all package`;
+  async findAll(): Promise<Package[]> {
+    return await this.packageRepo.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} package`;
+  async findOne(id: number): Promise<Package> {
+    const existingPackage = await this.findOne(id);
+
+    if (!existingPackage) {
+      throw new BadRequestException(
+        `Package with the id "${id}" does not exist.`,
+      );
+    }
+
+    return await this.packageRepo.findOne(id);
   }
 
-  update(id: number, updatePackageInput: UpdatePackageInput) {
-    return `This action updates a #${id} package`;
+  async update(
+    id: number,
+    updatePackageInput: UpdatePackageInput,
+  ): Promise<Package> {
+    const existingPackage = await this.packageRepo.findOne(id);
+
+    if (!existingPackage) {
+      throw new BadRequestException(`Package with id "${id}" does not exist.`);
+    }
+
+    for (const [key, value] of Object.entries(updatePackageInput)) {
+      existingPackage[key] = value;
+    }
+
+    return await this.packageRepo.save(existingPackage);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} package`;
+  async remove(id: number): Promise<boolean> {
+    const existingPackage = await this.findOne(id);
+
+    if (!existingPackage) {
+      throw new BadRequestException(
+        `Package with the id "${id}" does not exist.`,
+      );
+    }
+
+    await this.packageRepo.delete(id);
+    return true;
   }
 
   async findOneByTitle(title: string): Promise<Package> {

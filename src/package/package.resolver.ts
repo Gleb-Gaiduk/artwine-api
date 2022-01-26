@@ -18,20 +18,20 @@ export class PackageResolver {
 
   @Public()
   @Query(() => [Package], { name: 'package' })
-  findAll() {
+  findAll(): Promise<Package[]> {
     return this.packageService.findAll();
   }
 
   @Public()
   @Query(() => Package, { name: 'package' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => Int }) id: number): Promise<Package> {
     return this.packageService.findOne(id);
   }
 
   @Mutation(() => Package)
   updatePackage(
     @Args('updatePackageInput') updatePackageInput: UpdatePackageInput,
-  ) {
+  ): Promise<Package> {
     return this.packageService.update(
       updatePackageInput.id,
       updatePackageInput,
@@ -39,7 +39,7 @@ export class PackageResolver {
   }
 
   @Mutation(() => Package)
-  removePackage(@Args('id', { type: () => Int }) id: number) {
+  removePackage(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.packageService.remove(id);
   }
 }
