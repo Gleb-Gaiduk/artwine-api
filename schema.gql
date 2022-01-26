@@ -16,6 +16,11 @@ input CreateOrderInput {
   exampleField: Int!
 }
 
+input CreateOrderStatusInput {
+  description: String!
+  title: String!
+}
+
 input CreatePackageInput {
   imagePath: String!
   price: Float!
@@ -94,6 +99,7 @@ input FiltersExpressionInput {
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
   createOrder(createOrderInput: CreateOrderInput!): Order!
+  createOrderStatus(createOrderStatusInput: CreateOrderStatusInput!): OrderStatus!
   createPackage(createPackageInput: CreatePackageInput!): Package!
   createProduct(createProductInput: CreateProductInput!): Product!
   createProductCategory(createCategoryInput: CreateCategoryInput!): ProductCategory!
@@ -103,11 +109,13 @@ type Mutation {
   logout: Boolean!
   refreshToken: Tokens!
   removeOrder(id: Int!): Order!
+  removeOrderStatus(id: Int!): OrderStatus!
   removePackage(id: Int!): Package!
   removeProduct(id: Int!): Boolean!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
   updateOrder(updateOrderInput: UpdateOrderInput!): Order!
+  updateOrderStatus(updateOrderStatusInput: UpdateOrderStatusInput!): OrderStatus!
   updatePackage(updatePackageInput: UpdatePackageInput!): Package!
   updateProduct(updateProductInput: UpdateProductInput!): Product!
   updateUser(updateUserInput: UpdateUserInput!): User!
@@ -206,6 +214,7 @@ input PropertyForProductInput {
 
 type Query {
   order(id: Int!): Order!
+  orderStatus(id: Int!): OrderStatus!
   package(id: Int!): Package!
   product(id: Int!): Product!
   productCategories: [ProductCategory!]!
@@ -251,6 +260,12 @@ input UpdateOrderInput {
   """Example field (placeholder)"""
   exampleField: Int
   id: Int!
+}
+
+input UpdateOrderStatusInput {
+  description: String
+  id: Int!
+  title: String
 }
 
 input UpdatePackageInput {
