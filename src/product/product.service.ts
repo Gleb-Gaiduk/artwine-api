@@ -62,13 +62,13 @@ export class ProductService extends TransactionFor<ProductService> {
     productCategory.properties = category_propertyTypeIntersections;
     productCategory = await this.categoriesRepo.save(productCategory);
 
-    const { title, description, imagePath, itemPrice } = createProductInput;
+    const { title, description, imagePath, price } = createProductInput;
     const newProductInstance = new Product();
     newProductInstance.title = title;
     newProductInstance.description = description;
     newProductInstance.category = productCategory;
     newProductInstance.imagePath = imagePath;
-    newProductInstance.itemPrice = itemPrice;
+    newProductInstance.price = price;
     // Add Product_ProductPropertyValue relation record
     newProductInstance.propertyValues = product_propertyValueIntersections;
 
@@ -129,14 +129,14 @@ export class ProductService extends TransactionFor<ProductService> {
       productCategory = await this.categoriesRepo.save(productCategory);
     }
 
-    const { title, description, imagePath, itemPrice } = updateProductInput;
+    const { title, description, imagePath, price } = updateProductInput;
     const updatedProductInstance = new Product();
     updatedProductInstance.id = id;
     if (title) updatedProductInstance.title = title;
     if (description) updatedProductInstance.description = description;
     updatedProductInstance.category = productCategory;
     if (imagePath) updatedProductInstance.imagePath = imagePath;
-    if (itemPrice) updatedProductInstance.itemPrice = itemPrice;
+    if (price) updatedProductInstance.price = price;
     if (!isEmpty(propertyValues)) {
       updatedProductInstance.propertyValues = propertyValues;
     }

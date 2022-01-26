@@ -1,6 +1,6 @@
 import { InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsNumberString, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsPositive, IsString } from 'class-validator';
 import { PropertyForProductInput } from '../product-property/product-property-type/dto/product-categories.input';
 
 @InputType()
@@ -17,8 +17,8 @@ export class CreateProductInput {
   @IsString({ message: 'Image path should be of a string type' })
   imagePath: string;
 
-  @IsNumberString({ message: 'Product price should be a positive number' })
-  itemPrice: string;
+  @IsPositive()
+  price: number;
 
   @ArrayNotEmpty({ message: 'Product can not be created without properties' })
   @Type(() => PropertyForProductInput)

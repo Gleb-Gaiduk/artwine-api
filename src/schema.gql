@@ -15,7 +15,7 @@ input CreateProductInput {
   category: String!
   description: String!
   imagePath: String!
-  itemPrice: String!
+  price: String!
   properties: [PropertyForProductInput!]!
   title: String!
 }
@@ -75,7 +75,9 @@ input FiltersExpressionInput {
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
   createProduct(createProductInput: CreateProductInput!): Product!
-  createProductCategory(createCategoryInput: CreateCategoryInput!): ProductCategory!
+  createProductCategory(
+    createCategoryInput: CreateCategoryInput!
+  ): ProductCategory!
   createRole(createRoleInput: CreateRoleInput!): Role!
   createUser(createUserInput: CreateUserInput!): UserWithTokens!
   login(authUserInput: AuthUserInput!): UserWithTokens!
@@ -102,7 +104,7 @@ type Product {
   description: String!
   id: ID!
   imagePath: String!
-  itemPrice: String!
+  price: String!
   propertyValues: [ProductPropertyValue!]!
   title: String!
   updatedAt: DateTime!
@@ -142,7 +144,11 @@ type Query {
   productCategories: [ProductCategory!]!
   user(id: Int!): User!
   userRoles(id: Int!): RolesForUser!
-  users(filters: FiltersExpressionInput, pagination: PaginationOptionsInput, sort: SortOptionsInput): PaginatedUsers!
+  users(
+    filters: FiltersExpressionInput
+    pagination: PaginationOptionsInput
+    sort: SortOptionsInput
+  ): PaginatedUsers!
 }
 
 type Role {

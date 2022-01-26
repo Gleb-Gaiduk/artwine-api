@@ -11,11 +11,23 @@ input CreateCategoryInput {
   category: String!
 }
 
+input CreateOrderInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreatePackageInput {
+  imagePath: String!
+  price: Float!
+  title: String!
+  type: String!
+}
+
 input CreateProductInput {
   category: String!
   description: String!
   imagePath: String!
-  itemPrice: String!
+  price: Float!
   properties: [PropertyForProductInput!]!
   title: String!
 }
@@ -81,6 +93,8 @@ input FiltersExpressionInput {
 
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
+  createOrder(createOrderInput: CreateOrderInput!): Order!
+  createPackage(createPackageInput: CreatePackageInput!): Package!
   createProduct(createProductInput: CreateProductInput!): Product!
   createProductCategory(createCategoryInput: CreateCategoryInput!): ProductCategory!
   createRole(createRoleInput: CreateRoleInput!): Role!
@@ -88,11 +102,45 @@ type Mutation {
   login(authUserInput: AuthUserInput!): UserWithTokens!
   logout: Boolean!
   refreshToken: Tokens!
+  removeOrder(id: Int!): Order!
+  removePackage(id: Int!): Package!
   removeProduct(id: Int!): Boolean!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
+  updateOrder(updateOrderInput: UpdateOrderInput!): Order!
+  updatePackage(updatePackageInput: UpdatePackageInput!): Package!
   updateProduct(updateProductInput: UpdateProductInput!): Product!
   updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type Order {
+  canceledAt: DateTime
+  comment: String
+  createdAt: DateTime!
+  deliveredAt: DateTime!
+  id: ID!
+  status: OrderStatus!
+  totalPrice: String!
+  updatedAt: DateTime!
+  user: User!
+}
+
+type OrderStatus {
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type Package {
+  createdAt: DateTime!
+  id: ID!
+  imagePath: String!
+  price: Float!
+  title: String!
+  type: String!
+  updatedAt: DateTime!
 }
 
 type PaginatedProducts {
@@ -116,7 +164,7 @@ type Product {
   description: String!
   id: ID!
   imagePath: String!
-  itemPrice: String!
+  price: Float!
   properties: [ProductProperty!]!
   title: String!
   updatedAt: DateTime!
@@ -157,6 +205,8 @@ input PropertyForProductInput {
 }
 
 type Query {
+  order(id: Int!): Order!
+  package(id: Int!): Package!
   product(id: Int!): Product!
   productCategories: [ProductCategory!]!
   products(options: EntityQueryInput): PaginatedProducts!
@@ -197,12 +247,26 @@ type Tokens {
   refresh_token: String!
 }
 
+input UpdateOrderInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdatePackageInput {
+  id: ID!
+  imagePath: String
+  price: Float
+  title: String
+  type: String
+}
+
 input UpdateProductInput {
   category: String
   description: String
   id: Int!
   imagePath: String
-  itemPrice: String
+  price: Float
   properties: [PropertyForProductInput!]
   title: String
 }

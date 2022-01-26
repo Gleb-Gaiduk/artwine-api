@@ -18,6 +18,8 @@ import { UserModule } from './user/user.module';
 import { UserResolver } from './user/user.resolver';
 import { UserService } from './user/user.service';
 import { PaginateService } from './utils/paginate/paginate.service';
+import { OrderModule } from './order/order.module';
+import { PackageModule } from './package/package.module';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { PaginateService } from './utils/paginate/paginate.service';
     CaslModule,
     ProductModule,
     ProductCategoryModule,
+    OrderModule,
+    PackageModule,
   ],
   controllers: [AppController],
   providers: [

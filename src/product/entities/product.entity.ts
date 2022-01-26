@@ -30,8 +30,8 @@ export class Product {
   @Column()
   imagePath: string;
 
-  @Column({ type: 'real' })
-  itemPrice: string;
+  @Column('decimal', { precision: 5, scale: 2 })
+  price: number;
 
   properties: ProductProperty[];
 
