@@ -1,4 +1,4 @@
-export const mapPropsToEntity = <Props, Entity>(
+const mapPropsToEntity = <Props, Entity>(
   props: Props,
   entity: Entity,
 ): Entity => {
@@ -8,3 +8,5 @@ export const mapPropsToEntity = <Props, Entity>(
 
   return entity;
 };
+
+export default mapPropsToEntity;

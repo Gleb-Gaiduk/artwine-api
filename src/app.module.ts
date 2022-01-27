@@ -20,6 +20,8 @@ import { UserService } from './user/user.service';
 import { PaginateService } from './utils/paginate/paginate.service';
 import { OrderModule } from './order/order.module';
 import { PackageModule } from './package/package.module';
+import { DeliveryModule } from './delivery/delivery.module';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
@@ -62,6 +64,8 @@ import { PackageModule } from './package/package.module';
     ProductCategoryModule,
     OrderModule,
     PackageModule,
+    DeliveryModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [

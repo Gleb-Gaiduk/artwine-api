@@ -2,13 +2,42 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Address {
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  flatNumber: String
+  homeNumber: String!
+  id: ID!
+  postalIndex: String!
+  street: String!
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
+}
+
 input AuthUserInput {
   email: String!
   password: String!
 }
 
+input CreateAddressInput {
+  city: String!
+  country: String!
+  flatNumber: String
+  homeNumber: String!
+  postalIndex: String!
+  street: String!
+  userId: Float!
+}
+
 input CreateCategoryInput {
   category: String!
+}
+
+input CreateDeliveryInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
 }
 
 input CreateOrderInput {
@@ -55,6 +84,13 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Delivery {
+  address: Address!
+  id: ID!
+  order: Order!
+  status: OrderStatus!
+}
+
 input EditRoleInput {
   roles: [UserRoles!]!
   userId: Float!
@@ -98,6 +134,8 @@ input FiltersExpressionInput {
 
 type Mutation {
   assignRole(assignRoleInput: EditRoleInput!): RolesForUser!
+  createAddress(createAddressInput: CreateAddressInput!): Address!
+  createDelivery(createDeliveryInput: CreateDeliveryInput!): Delivery!
   createOrder(createOrderInput: CreateOrderInput!): Order!
   createOrderStatus(createOrderStatusInput: CreateOrderStatusInput!): OrderStatus!
   createPackage(createPackageInput: CreatePackageInput!): Package!
@@ -108,12 +146,16 @@ type Mutation {
   login(authUserInput: AuthUserInput!): UserWithTokens!
   logout: Boolean!
   refreshToken: Tokens!
+  removeAddress(id: Int!): Address!
+  removeDelivery(id: Int!): Delivery!
   removeOrder(id: Int!): Order!
   removeOrderStatus(id: Int!): OrderStatus!
   removePackage(id: Int!): Package!
   removeProduct(id: Int!): Boolean!
   removeRole(removeRoleInput: EditRoleInput!): Boolean!
   removeUser(id: Int!): Boolean!
+  updateAddress(updateAddressInput: UpdateAddressInput!): Address!
+  updateDelivery(updateDeliveryInput: UpdateDeliveryInput!): Delivery!
   updateOrder(updateOrderInput: UpdateOrderInput!): Order!
   updateOrderStatus(updateOrderStatusInput: UpdateOrderStatusInput!): OrderStatus!
   updatePackage(updatePackageInput: UpdatePackageInput!): Package!
@@ -126,9 +168,10 @@ type Order {
   comment: String
   createdAt: DateTime!
   deliveredAt: DateTime!
+  delivery: Delivery!
   id: ID!
   status: OrderStatus!
-  totalPrice: String!
+  totalPrice: Float!
   updatedAt: DateTime!
   user: User!
 }
@@ -213,6 +256,8 @@ input PropertyForProductInput {
 }
 
 type Query {
+  address(id: Int!): Address!
+  delivery(id: Int!): Delivery!
   order(id: Int!): Order!
   orderStatus(id: Int!): OrderStatus!
   package(id: Int!): Package!
@@ -254,6 +299,23 @@ enum SortOrder {
 type Tokens {
   access_token: String!
   refresh_token: String!
+}
+
+input UpdateAddressInput {
+  city: String
+  country: String
+  flatNumber: String
+  homeNumber: String
+  id: Int!
+  postalIndex: String
+  street: String
+  userId: Float
+}
+
+input UpdateDeliveryInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
 }
 
 input UpdateOrderInput {

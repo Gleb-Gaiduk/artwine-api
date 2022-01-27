@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { mapPropsToEntity } from './../utils/map-props-to-entity/map-props-to-entity';
+import { mapPropsToEntity } from '../utils/utils-functions';
 import { CreatePackageInput } from './dto/create-package.input';
 import { UpdatePackageInput } from './dto/update-package.input';
 import { Package } from './entities/package.entity';

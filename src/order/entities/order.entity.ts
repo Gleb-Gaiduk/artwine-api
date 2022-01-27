@@ -2,6 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -10,8 +11,10 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { OrderStatus } from '../order-status/entities/order-status.entity';
+import { Delivery } from './../../delivery/entities/delivery.entity';
 
 @ObjectType()
+@Entity()
 export class Order {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
@@ -27,8 +30,12 @@ export class Order {
   @Column()
   comment?: string;
 
-  @Column({ type: 'real' })
-  totalPrice: string;
+  @Column('decimal', { precision: 6, scale: 2 })
+  totalPrice: number;
+
+  @OneToOne(() => Delivery, (delivery) => delivery.order, { cascade: true })
+  @JoinColumn()
+  delivery: Delivery;
 
   @Column()
   deliveredAt: Date;

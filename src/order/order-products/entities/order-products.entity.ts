@@ -15,14 +15,16 @@ export class OrderProducts {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'real' })
   productAmount: number;
 
   @ManyToOne(() => Order, { cascade: true })
+  // orderId
   order: Order;
 
   @ManyToOne(() => Product, { cascade: true })
-  Product: Product;
+  // productId
+  product: Product;
 
   @CreateDateColumn()
   createdAt: Date;

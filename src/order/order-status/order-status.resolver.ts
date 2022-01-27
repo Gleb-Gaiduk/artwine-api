@@ -12,17 +12,17 @@ export class OrderStatusResolver {
   createOrderStatus(
     @Args('createOrderStatusInput')
     createOrderStatusInput: CreateOrderStatusInput,
-  ) {
+  ): Promise<OrderStatus> {
     return this.orderStatusService.create(createOrderStatusInput);
   }
 
   @Query(() => [OrderStatus], { name: 'orderStatus' })
-  findAll() {
+  findAll(): Promise<OrderStatus[]> {
     return this.orderStatusService.findAll();
   }
 
   @Query(() => OrderStatus, { name: 'orderStatus' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => Int }) id: number): Promise<OrderStatus> {
     return this.orderStatusService.findOne(id);
   }
 
@@ -30,7 +30,7 @@ export class OrderStatusResolver {
   updateOrderStatus(
     @Args('updateOrderStatusInput')
     updateOrderStatusInput: UpdateOrderStatusInput,
-  ) {
+  ): Promise<OrderStatus> {
     return this.orderStatusService.update(
       updateOrderStatusInput.id,
       updateOrderStatusInput,
@@ -38,7 +38,9 @@ export class OrderStatusResolver {
   }
 
   @Mutation(() => OrderStatus)
-  removeOrderStatus(@Args('id', { type: () => Int }) id: number) {
+  removeOrderStatus(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<boolean> {
     return this.orderStatusService.remove(id);
   }
 }
