@@ -37,14 +37,13 @@ export class PackageService {
   }
 
   async findOne(id: number): Promise<Package> {
-    const existingPackage = await this.findOne(id);
+    const existingPackage = await this.packageRepo.findOne(id);
 
     if (!existingPackage) {
       throw new BadRequestException(
         `Package with the id "${id}" does not exist.`,
       );
     }
-
     return await this.packageRepo.findOne(id);
   }
 

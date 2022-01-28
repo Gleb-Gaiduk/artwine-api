@@ -41,13 +41,19 @@ input CreateDeliveryInput {
 }
 
 input CreateOrderInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  comment: String
+  productSets: [CreateOrderProductSetInput!]!
+  userId: Float!
+}
+
+input CreateOrderProductSetInput {
+  packageId: Float!
+  products: [OrderProductInput!]!
 }
 
 input CreateOrderStatusInput {
   description: String!
-  title: String!
+  title: Status!
 }
 
 input CreatePackageInput {
@@ -87,8 +93,6 @@ scalar DateTime
 type Delivery {
   address: Address!
   id: ID!
-  order: Order!
-  status: OrderStatus!
 }
 
 input EditRoleInput {
@@ -137,6 +141,7 @@ type Mutation {
   createAddress(createAddressInput: CreateAddressInput!): Address!
   createDelivery(createDeliveryInput: CreateDeliveryInput!): Delivery!
   createOrder(createOrderInput: CreateOrderInput!): Order!
+  createOrderProduct(createOrderProductInput: CreateOrderProductSetInput!): OrderProduct!
   createOrderStatus(createOrderStatusInput: CreateOrderStatusInput!): OrderStatus!
   createPackage(createPackageInput: CreatePackageInput!): Package!
   createProduct(createProductInput: CreateProductInput!): Product!
@@ -148,7 +153,6 @@ type Mutation {
   refreshToken: Tokens!
   removeAddress(id: Int!): Address!
   removeDelivery(id: Int!): Delivery!
-  removeOrder(id: Int!): Order!
   removeOrderStatus(id: Int!): OrderStatus!
   removePackage(id: Int!): Package!
   removeProduct(id: Int!): Boolean!
@@ -156,7 +160,6 @@ type Mutation {
   removeUser(id: Int!): Boolean!
   updateAddress(updateAddressInput: UpdateAddressInput!): Address!
   updateDelivery(updateDeliveryInput: UpdateDeliveryInput!): Delivery!
-  updateOrder(updateOrderInput: UpdateOrderInput!): Order!
   updateOrderStatus(updateOrderStatusInput: UpdateOrderStatusInput!): OrderStatus!
   updatePackage(updatePackageInput: UpdatePackageInput!): Package!
   updateProduct(updateProductInput: UpdateProductInput!): Product!
@@ -167,20 +170,37 @@ type Order {
   canceledAt: DateTime
   comment: String
   createdAt: DateTime!
-  deliveredAt: DateTime!
-  delivery: Delivery!
+  deliveredAt: DateTime
   id: ID!
+  products: [OrderProduct!]!
   status: OrderStatus!
   totalPrice: Float!
   updatedAt: DateTime!
   user: User!
 }
 
+type OrderProduct {
+  createdAt: DateTime!
+  id: ID!
+  order: Order!
+  orderId: Float!
+  packages: [Package!]!
+  product: Product!
+  productAmount: Float!
+  productId: Float!
+  updatedAt: DateTime!
+}
+
+input OrderProductInput {
+  productAmount: Float!
+  productId: Float!
+}
+
 type OrderStatus {
   createdAt: DateTime!
   description: String!
   id: ID!
-  title: String!
+  title: Status!
   updatedAt: DateTime!
 }
 
@@ -213,7 +233,7 @@ type Product {
   category: ProductCategory!
   createdAt: DateTime!
   description: String!
-  id: ID!
+  id: Int!
   imagePath: String!
   price: Float!
   properties: [ProductProperty!]!
@@ -258,7 +278,6 @@ input PropertyForProductInput {
 type Query {
   address(id: Int!): Address!
   delivery(id: Int!): Delivery!
-  order(id: Int!): Order!
   orderStatus(id: Int!): OrderStatus!
   package(id: Int!): Package!
   product(id: Int!): Product!
@@ -296,6 +315,15 @@ enum SortOrder {
   DESC
 }
 
+enum Status {
+  CANCELED
+  DELIVERED
+  IN_TRANSIT
+  PLACED
+  PROCESSING
+  RETURNED
+}
+
 type Tokens {
   access_token: String!
   refresh_token: String!
@@ -318,16 +346,10 @@ input UpdateDeliveryInput {
   id: Int!
 }
 
-input UpdateOrderInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
-}
-
 input UpdateOrderStatusInput {
   description: String
   id: Int!
-  title: String
+  title: Status
 }
 
 input UpdatePackageInput {

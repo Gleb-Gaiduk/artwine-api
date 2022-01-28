@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Status } from '../enums';
 
 @ObjectType()
 @Entity()
@@ -15,7 +16,7 @@ export class OrderStatus {
   id: number;
 
   @Column()
-  title: string;
+  title: Status;
 
   @Column()
   description: string;

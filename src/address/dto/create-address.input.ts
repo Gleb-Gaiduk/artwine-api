@@ -11,7 +11,7 @@ import { capitalizeFirstLetter } from '../../utils/utils-functions';
 
 @InputType()
 export class CreateAddressInput {
-  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @IsNumber({ allowNaN: false, allowInfinity: false, maxDecimalPlaces: 0 })
   userId: number;
 
   @IsString()

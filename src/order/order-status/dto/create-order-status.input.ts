@@ -1,10 +1,11 @@
 import { InputType } from '@nestjs/graphql';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
+import { Status } from '../enums';
 
 @InputType()
 export class CreateOrderStatusInput {
-  @IsString()
-  title: string;
+  @IsEnum(Status)
+  title: Status;
 
   @IsString()
   description: string;

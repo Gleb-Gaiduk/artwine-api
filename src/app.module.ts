@@ -22,6 +22,7 @@ import { OrderModule } from './order/order.module';
 import { PackageModule } from './package/package.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { AddressModule } from './address/address.module';
+import { OrderProductModule } from './order-product/order-product.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { AddressModule } from './address/address.module';
     PackageModule,
     DeliveryModule,
     AddressModule,
+    OrderProductModule,
   ],
   controllers: [AppController],
   providers: [
