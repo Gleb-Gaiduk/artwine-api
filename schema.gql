@@ -8,7 +8,7 @@ type Address {
   createdAt: DateTime!
   flatNumber: String
   homeNumber: String!
-  id: ID!
+  id: Int!
   postalIndex: String!
   street: String!
   updatedAt: DateTime!
@@ -92,7 +92,7 @@ scalar DateTime
 
 type Delivery {
   address: Address!
-  id: ID!
+  id: Int!
 }
 
 input EditRoleInput {
@@ -171,7 +171,7 @@ type Order {
   comment: String
   createdAt: DateTime!
   deliveredAt: DateTime
-  id: ID!
+  id: String!
   products: [OrderProduct!]!
   status: OrderStatus!
   totalPrice: Float!
@@ -181,9 +181,9 @@ type Order {
 
 type OrderProduct {
   createdAt: DateTime!
-  id: ID!
+  id: Int!
   order: Order!
-  orderId: Float!
+  orderId: String!
   packages: [Package!]!
   product: Product!
   productAmount: Float!
@@ -199,14 +199,14 @@ input OrderProductInput {
 type OrderStatus {
   createdAt: DateTime!
   description: String!
-  id: ID!
+  id: Int!
   title: Status!
   updatedAt: DateTime!
 }
 
 type Package {
   createdAt: DateTime!
-  id: ID!
+  id: Int!
   imagePath: String!
   price: Float!
   title: String!
@@ -244,7 +244,7 @@ type Product {
 type ProductCategory {
   category: String!
   createdAt: DateTime!
-  id: ID!
+  id: Int!
   properties: [ProductPropertyType!]!
   updatedAt: DateTime!
 }
@@ -256,7 +256,7 @@ type ProductProperty {
 
 type ProductPropertyType {
   createdAt: DateTime!
-  id: ID!
+  id: Int!
   title: String!
   updatedAt: DateTime!
 }
@@ -264,7 +264,7 @@ type ProductPropertyType {
 type ProductPropertyValue {
   createdAt: DateTime!
   description: String
-  id: ID!
+  id: Int!
   title: String!
   updatedAt: DateTime!
 }
@@ -291,13 +291,13 @@ type Query {
 type Role {
   createdAt: DateTime!
   description: String!
-  id: ID!
+  id: Int!
   title: UserRoles!
   updatedAt: DateTime!
 }
 
 type RolesForUser {
-  id: ID!
+  id: Int!
   roles: [UserRoles!]!
 }
 
@@ -353,7 +353,7 @@ input UpdateOrderStatusInput {
 }
 
 input UpdatePackageInput {
-  id: ID!
+  id: Int!
   imagePath: String
   price: Float
   title: String
@@ -383,7 +383,7 @@ type User {
   createdAt: DateTime!
   email: String!
   firstName: String!
-  id: ID!
+  id: Int!
   isActivated: Boolean!
   lastName: String
   password: String
@@ -404,7 +404,7 @@ type UserWithTokens {
   createdAt: DateTime
   email: String
   firstName: String
-  id: ID
+  id: Int
   isActivated: Boolean
   lastName: String
   password: String

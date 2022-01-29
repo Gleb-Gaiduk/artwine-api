@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -10,7 +10,7 @@ import {
 @ObjectType()
 @Entity()
 export class Role {
-  @Field((type) => ID)
+  @Field((type) => Int)
   @PrimaryGeneratedColumn()
   id: number;
 

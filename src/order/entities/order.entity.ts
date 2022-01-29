@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -6,7 +6,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,21 +16,21 @@ import { OrderProduct } from './../../order-product/entities/order-product.entit
 @ObjectType()
 @Entity()
 export class Order {
-  @Field(() => ID)
-  @PrimaryColumn({ type: 'bigint', unique: true })
-  id: number;
+  @Field()
+  @PrimaryColumn({ unique: true })
+  id: string;
 
   @ManyToOne(() => User, { cascade: true })
   user: User;
 
-  @OneToOne(() => OrderStatus)
+  @ManyToOne(() => OrderStatus)
   @JoinColumn()
   status: OrderStatus;
 
   @Column({ nullable: true })
   comment?: string;
 
-  @OneToMany(() => OrderProduct, (products) => products.orderId, {
+  @OneToMany(() => OrderProduct, (products) => products.order, {
     cascade: true,
   })
   products: OrderProduct[];

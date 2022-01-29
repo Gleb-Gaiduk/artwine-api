@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -13,7 +13,7 @@ import { ProductPropertyType } from '../../product-property/product-property-typ
 @ObjectType()
 @Entity()
 export class ProductCategory {
-  @Field((type) => ID)
+  @Field((type) => Int)
   @PrimaryGeneratedColumn()
   id: number;
 

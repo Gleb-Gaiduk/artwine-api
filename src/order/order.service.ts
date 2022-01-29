@@ -5,8 +5,10 @@ import { TransactionFor } from 'nest-transact';
 import { Repository } from 'typeorm';
 import { OrderProduct } from '../order-product/entities/order-product.entity';
 import { OrderProductService } from '../order-product/order-product.service';
+import { Product } from '../product/entities/product.entity';
 import { UserService } from '../user/user.service';
 import { generateNumericId, mapPropsToEntity } from '../utils/utils-functions';
+import { PackageService } from './../package/package.service';
 import { CreateOrderInput } from './dto/create-order.input';
 import { Order } from './entities/order.entity';
 import { Status } from './order-status/enums';
@@ -17,13 +19,15 @@ export class OrderService extends TransactionFor<OrderService> {
   constructor(
     @InjectRepository(Order)
     private readonly ordersRepo: Repository<Order>,
-
     @InjectRepository(OrderProduct)
     private readonly orderProductsRepo: Repository<OrderProduct>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
 
     private readonly usersService: UserService,
     private readonly orderProductService: OrderProductService,
     private readonly orderStatusService: OrderStatusService,
+    private readonly packageService: PackageService,
 
     moduleRef: ModuleRef,
   ) {
@@ -47,15 +51,6 @@ export class OrderService extends TransactionFor<OrderService> {
       Status.PLACED,
     );
 
-    for (const productSet of productSets) {
-      await this.orderProductService.saveOrderProductSet(orderId, productSet);
-    }
-
-    const orderProducts = await this.orderProductsRepo.find({
-      where: { orderId },
-      relations: ['product'],
-    });
-
     const order = new Order();
     const orderProps = {
       id: orderId,
@@ -72,9 +67,36 @@ export class OrderService extends TransactionFor<OrderService> {
     );
 
     await this.ordersRepo.save(orderWithProps);
-    return await this.ordersRepo.findOne(orderId, {
+
+    for (const productSet of productSets) {
+      await this.orderProductService.saveOrderProductSet(orderId, productSet);
+    }
+
+    const productPackageIDs = productSets.map((set) => set.packageId);
+    const totalPackagePrice = await this.packageService.getTotalPriceByIDs(
+      productPackageIDs,
+    );
+    const totalProductsPrice =
+      await this.orderProductService.getTotalPriceByOrderId(orderId);
+
+    const existedOrder = await this.ordersRepo.findOne(orderId);
+    existedOrder.totalPrice = totalPackagePrice + totalProductsPrice;
+    await this.ordersRepo.save(existedOrder);
+
+    const orderWithRelations = await this.ordersRepo.findOne(orderId, {
       relations: ['user', 'status', 'products'],
     });
+    const orderProductsIDs = orderWithRelations.products.map(
+      (product) => product.productId,
+    );
+    const productsWithMappedData =
+      await this.orderProductService.mapOrderProductsWithProductEntities(
+        orderWithRelations,
+        orderProductsIDs,
+      );
+    orderWithRelations.products = productsWithMappedData;
+
+    return orderWithRelations;
   }
 
   // findAll() {

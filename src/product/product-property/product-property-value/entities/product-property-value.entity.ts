@@ -1,4 +1,4 @@
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -13,7 +13,7 @@ import { ProductPropertyType } from '../../product-property-type/entities/produc
 @ObjectType()
 @Entity()
 export class ProductPropertyValue {
-  @Field(() => ID)
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -1,9 +1,9 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { UserRoles } from './role.entity';
 
 @ObjectType()
 export class RolesForUser {
-  @Field((type) => ID)
+  @Field((type) => Int)
   id: number;
   roles: UserRoles[];
 }

@@ -81,4 +81,14 @@ export class PackageService {
   async findOneByTitle(title: string): Promise<Package> {
     return this.packageRepo.findOne({ where: { title } });
   }
+
+  async getTotalPriceByIDs(ids: number[]): Promise<number> {
+    const packagePrices = await this.packageRepo.findByIds(ids, {
+      select: ['price'],
+    });
+    return packagePrices.reduce(
+      (init, current) => Number(init + current.price),
+      0,
+    );
+  }
 }
