@@ -7,8 +7,10 @@ import { OrderProduct } from '../order-product/entities/order-product.entity';
 import { OrderProductService } from '../order-product/order-product.service';
 import { Product } from '../product/entities/product.entity';
 import { UserService } from '../user/user.service';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { generateNumericId, mapPropsToEntity } from '../utils/utils-functions';
 import { PackageService } from './../package/package.service';
+import { PaginateService } from './../utils/paginate/paginate.service';
 import { CreateOrderInput } from './dto/create-order.input';
 import { Order } from './entities/order.entity';
 import { Status } from './order-status/enums';
@@ -28,6 +30,7 @@ export class OrderService extends TransactionFor<OrderService> {
     private readonly orderProductService: OrderProductService,
     private readonly orderStatusService: OrderStatusService,
     private readonly packageService: PackageService,
+    private readonly paginateService: PaginateService,
 
     moduleRef: ModuleRef,
   ) {
@@ -99,9 +102,13 @@ export class OrderService extends TransactionFor<OrderService> {
     return orderWithRelations;
   }
 
-  // findAll() {
-  //   return `This action returns all order`;
-  // }
+  async findAll(queryOptions: EntityQueryInput) {
+    const { results, total } =
+      await this.paginateService.findAllPaginatedWithFilters<Order>(
+        this.ordersRepo,
+        queryOptions,
+      );
+  }
 
   // findOne(id: number) {
   //   return `This action returns a #${id} order`;

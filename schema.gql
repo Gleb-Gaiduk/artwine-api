@@ -214,6 +214,11 @@ type Package {
   updatedAt: DateTime!
 }
 
+type PaginatedOrders {
+  results: [Order!]!
+  total: Int!
+}
+
 type PaginatedProducts {
   results: [Product!]!
   total: Int!
@@ -279,6 +284,7 @@ type Query {
   address(id: Int!): Address!
   delivery(id: Int!): Delivery!
   orderStatus(id: Int!): OrderStatus!
+  orders(options: EntityQueryInput): PaginatedOrders!
   package(id: Int!): Package!
   product(id: Int!): Product!
   productCategories: [ProductCategory!]!

@@ -1,7 +1,9 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Connection } from 'typeorm';
+import { EntityQueryInput } from '../utils/dto/entity-query.input';
 import { CreateOrderInput } from './dto/create-order.input';
 import { Order } from './entities/order.entity';
+import { PaginatedOrders } from './entities/paginated-orders.entity';
 import { OrderService } from './order.service';
 
 @Resolver(() => Order)
@@ -22,10 +24,15 @@ export class OrderResolver {
     });
   }
 
-  // @Query(() => [Order], { name: 'order' })
-  // findAll() {
-  //   return this.orderService.findAll();
-  // }
+  @Query(() => PaginatedOrders, { name: 'orders' })
+  findAll(
+    @Args('options', {
+      nullable: true,
+    })
+    options?: EntityQueryInput,
+  ) {
+    return this.orderService.findAll(options);
+  }
 
   // @Query(() => Order, { name: 'order' })
   // findOne(@Args('id', { type: () => Int }) id: number) {
