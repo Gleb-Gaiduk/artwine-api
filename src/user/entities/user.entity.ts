@@ -44,11 +44,11 @@ export class User {
     cascade: true,
   })
   @JoinTable()
-  roles: Role[];
+  roles?: Role[];
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

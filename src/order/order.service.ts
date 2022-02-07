@@ -104,10 +104,11 @@ export class OrderService extends TransactionFor<OrderService> {
 
   async findAll(queryOptions: EntityQueryInput) {
     const { results, total } =
-      await this.paginateService.findAllPaginatedWithFilters<Order>(
-        this.ordersRepo,
+      await this.paginateService.findPaginatedWithFilters<Order>({
+        repository: this.ordersRepo,
         queryOptions,
-      );
+        alias: 'order',
+      });
   }
 
   // findOne(id: number) {

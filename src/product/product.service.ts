@@ -167,10 +167,11 @@ export class ProductService extends TransactionFor<ProductService> {
 
   async findAll(queryOptions: EntityQueryInput): Promise<PaginatedProducts> {
     const { results, total } =
-      await this.paginateService.findAllPaginatedWithFilters<Product>(
-        this.productsRepo,
+      await this.paginateService.findPaginatedWithFilters<Product>({
+        repository: this.productsRepo,
         queryOptions,
-      );
+        alias: 'product',
+      });
 
     for (const product of results) {
       product.category = await this.productsRepo

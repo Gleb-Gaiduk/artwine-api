@@ -11,20 +11,21 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly usersRepo: Repository<User>,
-
-    private readonly paginateService: PaginateService,
+    private readonly _usersRepo: Repository<User>,
+    private readonly _paginateService: PaginateService,
   ) {}
 
   async findAll(queryOptions: EntityQueryInput): Promise<PaginatedUsers> {
-    return await this.paginateService.findAllPaginatedWithFilters<User>(
-      this.usersRepo,
+    return await this._paginateService.findPaginatedWithFilters<User>({
+      repository: this._usersRepo,
       queryOptions,
-    );
+      alias: 'user',
+      relations: ['roles'],
+    });
   }
 
   async findOne(id: number): Promise<User> {
-    const user = await this.usersRepo.findOne(id);
+    const user = await this._usersRepo.findOne(id);
     return user;
   }
 
@@ -33,7 +34,6 @@ export class UserService {
 
     await getManager().transaction(async (transactionManager) => {
       await transactionManager.update(User, id, updateUserInput);
-
       updatedUser = await transactionManager.findOne(User, id);
     });
 
@@ -41,7 +41,7 @@ export class UserService {
   }
 
   async remove(id: number): Promise<boolean> {
-    await this.usersRepo.delete(id);
+    await this._usersRepo.delete(id);
     return true;
   }
 }

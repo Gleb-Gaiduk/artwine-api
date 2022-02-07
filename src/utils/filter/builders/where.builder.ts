@@ -43,17 +43,39 @@ export class WhereBuilder<Entity> {
       case FilterOperation.EQ:
         this.params[paramName] = filter.values[0];
         return `${filter.field} = :${paramName}`;
+
       case FilterOperation.IN:
         this.params[paramName] = filter.values;
         return `${filter.field} IN (:${paramName})`;
+
       case FilterOperation.LIKE:
         this.params[paramName] = `%${filter.values[0]}%`;
         return `${filter.field} LIKE :${paramName}`;
+
       case FilterOperation.GE:
         this.params[paramName] = filter.values[0];
         return `${filter.field} >= :${paramName}`;
+
+      case FilterOperation.GT:
+        this.params[paramName] = filter.values[0];
+        return `${filter.field} > :${paramName}`;
+
+      case FilterOperation.LE:
+        this.params[paramName] = filter.values[0];
+        return `${filter.field} <= :${paramName}`;
+
+      case FilterOperation.LT:
+        this.params[paramName] = filter.values[0];
+        return `${filter.field} < :${paramName}`;
+
+      case FilterOperation.NE:
+        this.params[paramName] = filter.values[0];
+        return `${filter.field} <> :${paramName}`;
+
       default:
-        throw new Error(`Unknown filter operation: ${filter.operation}`);
+        throw new Error(
+          `Unknown filter operation, add a new filter operation in where.builder.ts: ${filter.operation}`,
+        );
     }
   }
 }

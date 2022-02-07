@@ -394,7 +394,7 @@ type User {
   lastName: String
   password: String
   phone: String
-  roles: [Role!]!
+  roles: [Role!]
   updatedAt: DateTime!
 }
 
