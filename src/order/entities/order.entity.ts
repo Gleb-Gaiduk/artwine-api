@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -20,6 +20,9 @@ export class Order {
   @PrimaryColumn({ unique: true })
   id: string;
 
+  @Column()
+  @HideField()
+  userId: number;
   @ManyToOne(() => User, { cascade: true })
   user: User;
 

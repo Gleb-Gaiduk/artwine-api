@@ -1,5 +1,6 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { ReadUsersPolicyHandler } from 'src/casl/handlers/user/read-users.handler';
 import { CheckPolicies } from '../casl/decorators/check-policies.decorator';
 import { PoliciesGuard } from '../casl/guards/policies.guard';
 import { ReadUserPolicyHandler } from '../casl/handlers/user/read-user.handler';
@@ -18,6 +19,7 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(() => PaginatedUsers, { name: 'users' })
+  @CheckPolicies(ReadUsersPolicyHandler)
   async findAll(
     @Args('options') options: EntityQueryInput,
   ): Promise<PaginatedUsers> {

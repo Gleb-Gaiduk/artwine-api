@@ -7,6 +7,7 @@ import { PaginatedOrders } from './entities/paginated-orders.entity';
 import { OrderService } from './order.service';
 
 @Resolver(() => Order)
+// @UseGuards(PoliciesGuard)
 export class OrderResolver {
   constructor(
     private readonly orderService: OrderService,
@@ -14,6 +15,7 @@ export class OrderResolver {
   ) {}
 
   @Mutation(() => Order)
+  // @CheckPolicies(ManageOrderPolicyHandler)
   createOrder(
     @Args('createOrderInput') createOrderInput: CreateOrderInput,
   ): Promise<Order> {
@@ -25,6 +27,7 @@ export class OrderResolver {
   }
 
   @Query(() => PaginatedOrders, { name: 'orders' })
+  // @CheckPolicies(ManageOrderPolicyHandler)
   findAll(
     @Args('options', {
       nullable: true,
@@ -35,6 +38,7 @@ export class OrderResolver {
   }
 
   @Query(() => Order, { name: 'order' })
+  // @CheckPolicies(ManageOrderPolicyHandler)
   findOne(@Args('id') id: string): Promise<Order> {
     return this.orderService.findOne(id);
   }
@@ -45,6 +49,7 @@ export class OrderResolver {
   // }
 
   @Mutation(() => Boolean)
+  // @CheckPolicies(ManageOrderPolicyHandler)
   removeOrder(@Args('id') id: string): Promise<boolean> {
     return this.orderService.remove(id);
   }
