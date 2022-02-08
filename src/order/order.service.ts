@@ -99,11 +99,20 @@ export class OrderService extends TransactionFor<OrderService> {
     // TODO: order total price calculation using subscribers
     // https://orkhan.gitbook.io/typeorm/docs/listeners-and-subscribers
 
+    // Below problem: can not find 2-level nested relations but works with 1 level well.
     // const { results, total } =
     //   await this._paginateService.findPaginatedWithFilters<Order>({
     //     repository: this._ordersRepo,
     //     queryOptions,
     //     alias: 'order',
+    //     relations: [
+    //       'products.product',
+    //       'user',
+    //       'status',
+    //       'products',
+    //       'products.packages',
+    //       'products.product.category',
+    //     ],
     //   });
 
     const [results, total] = await this._ordersRepo.findAndCount({
@@ -136,15 +145,39 @@ export class OrderService extends TransactionFor<OrderService> {
     return totalPackagePrice + totalProductsPrice;
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} order`;
-  // }
+  async findOne(id: string): Promise<Order> {
+    const orderWithRelations = await this._ordersRepo.findOne(id, {
+      relations: [
+        'user',
+        'status',
+        'products',
+        'products.packages',
+        'products.product',
+        'products.product.category',
+      ],
+    });
+
+    if (!orderWithRelations) {
+      throw new BadRequestException(`Order with id ${id} doesn't exist.`);
+    }
+
+    return orderWithRelations;
+  }
 
   // update(id: number, updateOrderInput: UpdateOrderInput) {
   //   return `This action updates a #${id} order`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} order`;
-  // }
+  async remove(id: string): Promise<boolean> {
+    const existingOrder = await this._ordersRepo.findOne(id);
+
+    if (!existingOrder) {
+      throw new BadRequestException(`Order with id ${id} doesn't exist.`);
+    }
+
+    await this._orderProductService.remove(id);
+    await this._ordersRepo.delete(id);
+
+    return true;
+  }
 }

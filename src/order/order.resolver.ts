@@ -30,22 +30,22 @@ export class OrderResolver {
       nullable: true,
     })
     options?: EntityQueryInput,
-  ) {
+  ): Promise<PaginatedOrders> {
     return this.orderService.findAll(options);
   }
 
-  // @Query(() => Order, { name: 'order' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.orderService.findOne(id);
-  // }
+  @Query(() => Order, { name: 'order' })
+  findOne(@Args('id') id: string): Promise<Order> {
+    return this.orderService.findOne(id);
+  }
 
   // @Mutation(() => Order)
   // updateOrder(@Args('updateOrderInput') updateOrderInput: UpdateOrderInput) {
   //   return this.orderService.update(updateOrderInput.id, updateOrderInput);
   // }
 
-  // @Mutation(() => Order)
-  // removeOrder(@Args('id', { type: () => Int }) id: number) {
-  //   return this.orderService.remove(id);
-  // }
+  @Mutation(() => Boolean)
+  removeOrder(@Args('id') id: string): Promise<boolean> {
+    return this.orderService.remove(id);
+  }
 }

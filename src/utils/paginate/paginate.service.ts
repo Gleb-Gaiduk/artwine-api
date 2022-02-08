@@ -39,7 +39,8 @@ export class PaginateService {
     let resultsWithTotalCount;
     if (relations.length) {
       const [results, total] = await queryBuilder
-        .leftJoinAndSelect(`${alias}.${relations[0]}`, `${relations[0]}`)
+        // .leftJoinAndSelect(`${alias}.${relations[0]}`, `${relations[0]}`)
+        .leftJoinAndSelectWithRelations(alias, relations)
         .take(limit)
         .skip((page - 1) * limit)
         .orderBy(`${alias}.${sortField}`, sortOrder)

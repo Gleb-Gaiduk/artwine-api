@@ -3,6 +3,16 @@ import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 import { FiltersExpressionInput } from '../dto/filters-expression.input';
 import { JoinBuilder } from './join.builder';
 import { WhereBuilder } from './where.builder';
+
+SelectQueryBuilder.prototype.leftJoinAndSelectWithRelations = function <Entity>(
+  alias: string,
+  relations: string[],
+): SelectQueryBuilder<Entity> {
+  for (const relation of relations) {
+    this.leftJoinAndSelect(`${alias}.${relation}`, `${relation}`);
+  }
+  return this;
+};
 export class FilterQueryBuilder<Entity> {
   private readonly _queryBuilder: SelectQueryBuilder<Entity>;
 

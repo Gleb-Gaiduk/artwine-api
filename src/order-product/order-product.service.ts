@@ -71,7 +71,8 @@ export class OrderProductService {
   //   return `This action updates a #${id} orderProduct`;
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} orderProduct`;
-  // }
+  async remove(orderId: string): Promise<boolean> {
+    await this._orderProductsRepo.delete({ orderId });
+    return true;
+  }
 }
