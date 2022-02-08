@@ -8,11 +8,12 @@ import { OrderProductService } from '../order-product/order-product.service';
 import { Product } from '../product/entities/product.entity';
 import { UserService } from '../user/user.service';
 import { EntityQueryInput } from '../utils/dto/entity-query.input';
-import { generateNumericId, mapPropsToEntity } from '../utils/utils-functions';
+import { getNumericStringID, mapPropsToEntity } from '../utils/utils-functions';
 import { PackageService } from './../package/package.service';
 import { PaginateService } from './../utils/paginate/paginate.service';
 import { CreateOrderInput } from './dto/create-order.input';
 import { Order } from './entities/order.entity';
+import { PaginatedOrders } from './entities/paginated-orders.entity';
 import { Status } from './order-status/enums';
 import { OrderStatusService } from './order-status/order-status.service';
 
@@ -20,25 +21,23 @@ import { OrderStatusService } from './order-status/order-status.service';
 export class OrderService extends TransactionFor<OrderService> {
   constructor(
     @InjectRepository(Order)
-    private readonly ordersRepo: Repository<Order>,
+    private readonly _ordersRepo: Repository<Order>,
     @InjectRepository(OrderProduct)
-    private readonly orderProductsRepo: Repository<OrderProduct>,
+    private readonly _orderProductsRepo: Repository<OrderProduct>,
     @InjectRepository(Product)
-    private readonly productRepo: Repository<Product>,
-
-    private readonly usersService: UserService,
-    private readonly orderProductService: OrderProductService,
-    private readonly orderStatusService: OrderStatusService,
-    private readonly packageService: PackageService,
-    private readonly paginateService: PaginateService,
-
+    private readonly _productRepo: Repository<Product>,
+    private readonly _usersService: UserService,
+    private readonly _orderProductService: OrderProductService,
+    private readonly _orderStatusService: OrderStatusService,
+    private readonly _packageService: PackageService,
+    private readonly _paginateService: PaginateService,
     moduleRef: ModuleRef,
   ) {
     super(moduleRef);
   }
 
   async create(createOrderInput: CreateOrderInput): Promise<Order> {
-    const existingUser = await this.usersService.findOne(
+    const existingUser = await this._usersService.findOne(
       createOrderInput.userId,
     );
 
@@ -49,8 +48,8 @@ export class OrderService extends TransactionFor<OrderService> {
     }
 
     const { productSets } = createOrderInput;
-    const orderId = generateNumericId();
-    const orderStatus = await this.orderStatusService.findOneByTitle(
+    const orderId = getNumericStringID();
+    const orderStatus = await this._orderStatusService.findOneByTitle(
       Status.PLACED,
     );
 
@@ -63,52 +62,78 @@ export class OrderService extends TransactionFor<OrderService> {
       totalPrice: 0,
       // delivery: ;
     };
-
     const orderWithProps = mapPropsToEntity<typeof orderProps, Order>(
       orderProps,
       order,
     );
-
-    await this.ordersRepo.save(orderWithProps);
+    await this._ordersRepo.save(orderWithProps);
 
     for (const productSet of productSets) {
-      await this.orderProductService.saveOrderProductSet(orderId, productSet);
+      await this._orderProductService.saveOrderProductSet(orderId, productSet);
     }
 
+    const existingOrder = await this._ordersRepo.findOne(orderId);
     const productPackageIDs = productSets.map((set) => set.packageId);
-    const totalPackagePrice = await this.packageService.getTotalPriceByIDs(
+    existingOrder.totalPrice = await this._findTotalPrice(
+      orderId,
       productPackageIDs,
     );
-    const totalProductsPrice =
-      await this.orderProductService.getTotalPriceByOrderId(orderId);
+    await this._ordersRepo.save(existingOrder);
 
-    const existedOrder = await this.ordersRepo.findOne(orderId);
-    existedOrder.totalPrice = totalPackagePrice + totalProductsPrice;
-    await this.ordersRepo.save(existedOrder);
-
-    const orderWithRelations = await this.ordersRepo.findOne(orderId, {
-      relations: ['user', 'status', 'products'],
+    const orderWithRelations = await this._ordersRepo.findOne(orderId, {
+      relations: [
+        'user',
+        'status',
+        'products',
+        'products.packages',
+        'products.product',
+        'products.product.category',
+      ],
     });
-    const orderProductsIDs = orderWithRelations.products.map(
-      (product) => product.productId,
-    );
-    const productsWithMappedData =
-      await this.orderProductService.mapOrderProductsWithProductEntities(
-        orderWithRelations,
-        orderProductsIDs,
-      );
-    orderWithRelations.products = productsWithMappedData;
 
     return orderWithRelations;
   }
 
-  async findAll(queryOptions: EntityQueryInput) {
-    const { results, total } =
-      await this.paginateService.findPaginatedWithFilters<Order>({
-        repository: this.ordersRepo,
-        queryOptions,
-        alias: 'order',
-      });
+  async findAll(queryOptions: EntityQueryInput): Promise<PaginatedOrders> {
+    // TODO: paginated orders
+    // TODO: order total price calculation using subscribers
+    // https://orkhan.gitbook.io/typeorm/docs/listeners-and-subscribers
+
+    // const { results, total } =
+    //   await this._paginateService.findPaginatedWithFilters<Order>({
+    //     repository: this._ordersRepo,
+    //     queryOptions,
+    //     alias: 'order',
+    //   });
+
+    const [results, total] = await this._ordersRepo.findAndCount({
+      relations: [
+        'user',
+        'status',
+        'products',
+        'products.packages',
+        'products.product',
+        'products.product.category',
+      ],
+    });
+
+    return {
+      results,
+      total,
+    };
+  }
+
+  private async _findTotalPrice(
+    orderId: string,
+    packageIDs: number[],
+  ): Promise<number> {
+    const totalPackagePrice = await this._packageService.getTotalPriceByIDs(
+      packageIDs,
+    );
+    const totalProductsPrice =
+      await this._orderProductService.getTotalPriceByOrderId(orderId);
+
+    return totalPackagePrice + totalProductsPrice;
   }
 
   // findOne(id: number) {

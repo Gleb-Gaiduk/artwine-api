@@ -1,3 +1,3 @@
-const generateNumericId = (): string => Date.now().toString();
+const getNumericStringID = (): string => Date.now().toString();
 
-export default generateNumericId;
+export default getNumericStringID;

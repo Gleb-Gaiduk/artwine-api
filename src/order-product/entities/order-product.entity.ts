@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, Int, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -26,6 +26,7 @@ export class OrderProduct {
   @Column()
   orderId: string;
   @ManyToOne(() => Order, (order) => order.products)
+  @HideField()
   order: Order;
 
   @Column()

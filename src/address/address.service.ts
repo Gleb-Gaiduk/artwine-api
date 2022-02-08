@@ -14,11 +14,11 @@ export class AddressService {
   ) {}
 
   async create(createAddressInput: CreateAddressInput): Promise<Address> {
-    const existedUserAddress = await this.findByUserId(
+    const existingUserAddress = await this.findByUserId(
       createAddressInput.userId,
     );
 
-    if (existedUserAddress) {
+    if (existingUserAddress) {
       throw new BadRequestException(
         `User with the id "${createAddressInput.userId}" already has a saved address`,
       );
@@ -40,9 +40,9 @@ export class AddressService {
   // }
 
   async findOne(id: number): Promise<Address> {
-    const existedAddress = await this.addressRepo.findOne(id);
+    const existingAddress = await this.addressRepo.findOne(id);
 
-    if (!existedAddress) {
+    if (!existingAddress) {
       throw new BadRequestException(
         `Address with the id "${id}" does not exist`,
       );
@@ -54,9 +54,9 @@ export class AddressService {
     id: number,
     updateAddressInput: UpdateAddressInput,
   ): Promise<Address> {
-    const existedUserAddress = await this.addressRepo.findOne(id);
+    const existingUserAddress = await this.addressRepo.findOne(id);
 
-    if (!existedUserAddress) {
+    if (!existingUserAddress) {
       throw new BadRequestException(
         `Address with the id "${id}" does not exist`,
       );
@@ -65,22 +65,22 @@ export class AddressService {
     const updatedAddressWithProps = mapPropsToEntity<
       UpdateAddressInput,
       Address
-    >(updateAddressInput, existedUserAddress);
+    >(updateAddressInput, existingUserAddress);
 
     await this.addressRepo.save(updatedAddressWithProps);
     return await this.addressRepo.findOne(id, { relations: ['user'] });
   }
 
   async remove(id: number): Promise<boolean> {
-    const existedUserAddress = await this.findByUserId(id);
+    const existingUserAddress = await this.findByUserId(id);
 
-    if (!existedUserAddress) {
+    if (!existingUserAddress) {
       throw new BadRequestException(
         `User with the id "${id}" has no assigned address.`,
       );
     }
 
-    await this.addressRepo.delete(existedUserAddress.id);
+    await this.addressRepo.delete(existingUserAddress.id);
     return true;
   }
 

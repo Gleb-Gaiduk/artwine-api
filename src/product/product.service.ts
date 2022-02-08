@@ -12,32 +12,31 @@ import { PaginatedProducts } from './entities/paginated-products.entity';
 import { Product } from './entities/product.entity';
 import { ProductCategory } from './product-category/entities/product-category.entity';
 import { ProductCategoryService } from './product-category/product-category.service';
-import { ProductPropertyTypeService } from './product-property/product-property-type/product-property-type.service';
 import { ProductPropertyValue } from './product-property/product-property-value/entities/product-property-value.entity';
 import { ProductPropertyValueService } from './product-property/product-property-value/product-property.service';
 import { ProductPropertiesUtils } from './product-property/utils/product-properties.utils';
 
 @Injectable()
 export class ProductService extends TransactionFor<ProductService> {
+  static readonly CATEGORY_RELATION = 'category';
+  static readonly PRODUCT_RELATION = 'product';
+
   constructor(
     @InjectRepository(Product)
-    private readonly productsRepo: Repository<Product>,
+    private readonly _productsRepo: Repository<Product>,
     @InjectRepository(ProductCategory)
-    private readonly categoriesRepo: Repository<ProductCategory>,
-
-    private readonly categoryService: ProductCategoryService,
-    private readonly propertyTypeService: ProductPropertyTypeService,
-    private readonly propertyValueService: ProductPropertyValueService,
-    private readonly paginateService: PaginateService,
-
-    private readonly productPropertiesUtils: ProductPropertiesUtils,
+    private readonly _categoriesRepo: Repository<ProductCategory>,
+    private readonly _categoryService: ProductCategoryService,
+    private readonly _propertyValueService: ProductPropertyValueService,
+    private readonly _paginateService: PaginateService,
+    private readonly _productPropertiesUtils: ProductPropertiesUtils,
     moduleRef: ModuleRef,
   ) {
     super(moduleRef);
   }
 
   async create(createProductInput: CreateProductInput): Promise<Product> {
-    const existingProduct = await this.productsRepo.findOne({
+    const existingProduct = await this._productsRepo.findOne({
       where: { title: createProductInput.title },
     });
 
@@ -50,17 +49,17 @@ export class ProductService extends TransactionFor<ProductService> {
     const [
       category_propertyTypeIntersections,
       product_propertyValueIntersections,
-    ] = await this.productPropertiesUtils.saveProperties(
+    ] = await this._productPropertiesUtils.saveProperties(
       createProductInput.properties,
     );
 
-    let productCategory = await this.categoryService.getSaved(
+    let productCategory = await this._categoryService.getSaved(
       createProductInput.category,
     );
 
     // Add ProductCategory_ProductPropertyType relation record
     productCategory.properties = category_propertyTypeIntersections;
-    productCategory = await this.categoriesRepo.save(productCategory);
+    productCategory = await this._categoriesRepo.save(productCategory);
 
     const { title, description, imagePath, price } = createProductInput;
     const newProductInstance = new Product();
@@ -72,10 +71,10 @@ export class ProductService extends TransactionFor<ProductService> {
     // Add Product_ProductPropertyValue relation record
     newProductInstance.propertyValues = product_propertyValueIntersections;
 
-    const newProduct = await this.productsRepo.save(newProductInstance);
+    const newProduct = await this._productsRepo.save(newProductInstance);
 
-    const createdProduct = await this.productsRepo.findOne(newProduct.id, {
-      relations: ['category', 'propertyValues'],
+    const createdProduct = await this._productsRepo.findOne(newProduct.id, {
+      relations: [ProductService.CATEGORY_RELATION, 'propertyValues'],
     });
 
     const propertiesValueIDs = product_propertyValueIntersections.map(
@@ -83,11 +82,10 @@ export class ProductService extends TransactionFor<ProductService> {
     );
 
     const propertyValuesWithTypes =
-      await this.propertyValueService.findWithTypeByIDs(propertiesValueIDs);
+      await this._propertyValueService.findWithTypeByIDs(propertiesValueIDs);
 
-    createdProduct.properties = await this.productPropertiesUtils.mapProperties(
-      propertyValuesWithTypes,
-    );
+    createdProduct.properties =
+      await this._productPropertiesUtils.mapProperties(propertyValuesWithTypes);
 
     return createdProduct;
   }
@@ -96,7 +94,7 @@ export class ProductService extends TransactionFor<ProductService> {
     id: number,
     updateProductInput: UpdateProductInput,
   ): Promise<Product> {
-    const existingProduct = await this.productsRepo.findOne(id);
+    const existingProduct = await this._productsRepo.findOne(id);
 
     if (!existingProduct) {
       throw new BadRequestException(`Product with id "${id}" does not exist`);
@@ -104,13 +102,13 @@ export class ProductService extends TransactionFor<ProductService> {
 
     let productCategory;
     if (updateProductInput.category) {
-      productCategory = await this.categoryService.getSaved(
+      productCategory = await this._categoryService.getSaved(
         updateProductInput.category,
       );
     } else {
       productCategory = (
-        await this.productsRepo.findOne(id, {
-          relations: ['category'],
+        await this._productsRepo.findOne(id, {
+          relations: [ProductService.CATEGORY_RELATION],
         })
       ).category;
     }
@@ -120,13 +118,13 @@ export class ProductService extends TransactionFor<ProductService> {
       const [
         category_propertyTypeIntersections,
         product_propertyValueIntersections,
-      ] = await this.productPropertiesUtils.saveProperties(
+      ] = await this._productPropertiesUtils.saveProperties(
         updateProductInput.properties,
       );
       propertyValues = product_propertyValueIntersections;
 
       productCategory.properties = category_propertyTypeIntersections;
-      productCategory = await this.categoriesRepo.save(productCategory);
+      productCategory = await this._categoriesRepo.save(productCategory);
     }
 
     const { title, description, imagePath, price } = updateProductInput;
@@ -141,9 +139,9 @@ export class ProductService extends TransactionFor<ProductService> {
       updatedProductInstance.propertyValues = propertyValues;
     }
 
-    await this.productsRepo.save(updatedProductInstance);
-    const updatedProduct = await this.productsRepo.findOne(id, {
-      relations: ['category', 'propertyValues'],
+    await this._productsRepo.save(updatedProductInstance);
+    const updatedProduct = await this._productsRepo.findOne(id, {
+      relations: [ProductService.CATEGORY_RELATION, 'propertyValues'],
     });
 
     let propertiesValueIDs;
@@ -156,32 +154,26 @@ export class ProductService extends TransactionFor<ProductService> {
     }
 
     const propertyValuesWithTypes =
-      await this.propertyValueService.findWithTypeByIDs(propertiesValueIDs);
+      await this._propertyValueService.findWithTypeByIDs(propertiesValueIDs);
 
-    updatedProduct.properties = await this.productPropertiesUtils.mapProperties(
-      propertyValuesWithTypes,
-    );
+    updatedProduct.properties =
+      await this._productPropertiesUtils.mapProperties(propertyValuesWithTypes);
 
     return updatedProduct;
   }
 
   async findAll(queryOptions: EntityQueryInput): Promise<PaginatedProducts> {
     const { results, total } =
-      await this.paginateService.findPaginatedWithFilters<Product>({
-        repository: this.productsRepo,
+      await this._paginateService.findPaginatedWithFilters<Product>({
+        repository: this._productsRepo,
         queryOptions,
         alias: 'product',
+        relations: [ProductService.CATEGORY_RELATION],
       });
 
     for (const product of results) {
-      product.category = await this.productsRepo
-        .createQueryBuilder()
-        .relation(Product, 'category')
-        .of(product)
-        .loadOne();
-
       const productPropertiesValues: ProductPropertyValue[] =
-        await this.productsRepo
+        await this._productsRepo
           .createQueryBuilder()
           .relation(Product, 'propertyValues')
           .of(product)
@@ -192,9 +184,9 @@ export class ProductService extends TransactionFor<ProductService> {
       );
 
       const propertyValuesWithTypes =
-        await this.propertyValueService.findWithTypeByIDs(propertyValuesIDs);
+        await this._propertyValueService.findWithTypeByIDs(propertyValuesIDs);
 
-      product.properties = await this.productPropertiesUtils.mapProperties(
+      product.properties = await this._productPropertiesUtils.mapProperties(
         propertyValuesWithTypes,
       );
     }
@@ -206,8 +198,8 @@ export class ProductService extends TransactionFor<ProductService> {
   }
 
   async findOne(id: number): Promise<Product> {
-    const product = await this.productsRepo.findOne(id, {
-      relations: ['category', 'propertyValues'],
+    const product = await this._productsRepo.findOne(id, {
+      relations: [ProductService.CATEGORY_RELATION, 'propertyValues'],
     });
 
     if (!product) {
@@ -215,11 +207,10 @@ export class ProductService extends TransactionFor<ProductService> {
     }
 
     const propertyValuesIDs = product.propertyValues.map((value) => value.id);
-
     const propertyValuesWithTypes =
-      await this.propertyValueService.findWithTypeByIDs(propertyValuesIDs);
+      await this._propertyValueService.findWithTypeByIDs(propertyValuesIDs);
 
-    product.properties = await this.productPropertiesUtils.mapProperties(
+    product.properties = await this._productPropertiesUtils.mapProperties(
       propertyValuesWithTypes,
     );
 
@@ -227,13 +218,14 @@ export class ProductService extends TransactionFor<ProductService> {
   }
 
   async remove(id: number): Promise<boolean> {
-    const product = await this.productsRepo.findOne(id);
+    const product = await this._productsRepo.findOne(id);
 
     if (!product) {
       throw new BadRequestException(`Product with id "${id}" does not exist`);
     }
 
-    await this.productsRepo.delete(id);
+    await this._productsRepo.delete(id);
+
     return true;
   }
 }

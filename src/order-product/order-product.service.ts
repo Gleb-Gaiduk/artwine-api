@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProductService } from 'src/product/product.service';
 import { Repository } from 'typeorm';
-import { Order } from '../order/entities/order.entity';
 import { Product } from '../product/entities/product.entity';
 import { mapPropsToEntity } from '../utils/utils-functions';
 import { PackageService } from './../package/package.service';
@@ -13,11 +13,10 @@ import { OrderProduct } from './entities/order-product.entity';
 export class OrderProductService {
   constructor(
     @InjectRepository(OrderProduct)
-    private readonly orderProductsRepo: Repository<OrderProduct>,
+    private readonly _orderProductsRepo: Repository<OrderProduct>,
     @InjectRepository(Product)
-    private readonly productRepo: Repository<Product>,
-
-    private readonly packageService: PackageService,
+    private readonly _productRepo: Repository<Product>,
+    private readonly _packageService: PackageService,
   ) {}
 
   async create(
@@ -29,28 +28,28 @@ export class OrderProductService {
       OrderProduct
     >(createOrderProductInput, orderProduct);
 
-    return await this.orderProductsRepo.save(orderProductWithInputProps);
+    return await this._orderProductsRepo.save(orderProductWithInputProps);
   }
 
   async saveOrderProductSet(
     orderId: string,
     productSet: CreateOrderProductSetInput,
   ): Promise<void> {
-    const packageInstance = await this.packageService.findOne(
+    const packageInstance = await this._packageService.findOne(
       productSet.packageId,
     );
 
     for (const product of productSet.products) {
       const orderProduct = await this.create({ orderId, ...product });
       orderProduct.packages = [packageInstance];
-      await this.orderProductsRepo.save(orderProduct);
+      await this._orderProductsRepo.save(orderProduct);
     }
   }
 
   async getTotalPriceByOrderId(orderId: string): Promise<number> {
-    const orderProducts = await this.orderProductsRepo.find({
+    const orderProducts = await this._orderProductsRepo.find({
       where: { orderId },
-      relations: ['product'],
+      relations: [ProductService.PRODUCT_RELATION],
     });
 
     return orderProducts.reduce(
@@ -58,24 +57,6 @@ export class OrderProductService {
         initial + Number(current.productAmount) * Number(current.product.price),
       0,
     );
-  }
-
-  async mapOrderProductsWithProductEntities(
-    orderEntity: Order,
-    orderProductsIDs: number[],
-  ): Promise<OrderProduct[]> {
-    const productsData = await this.productRepo.findByIds(orderProductsIDs, {
-      relations: ['category'],
-    });
-
-    const productsWithMappedData = orderEntity.products.map((orderProduct) => {
-      const mappedProductData = productsData.find(
-        (product) => product.id === orderProduct.productId,
-      );
-      return { ...orderProduct, product: mappedProductData };
-    });
-
-    return productsWithMappedData;
   }
 
   // findAll() {

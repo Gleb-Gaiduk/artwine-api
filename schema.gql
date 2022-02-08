@@ -103,7 +103,6 @@ input EditRoleInput {
 input EntityQueryInput {
   filters: FiltersExpressionInput
   pagination: PaginationOptionsInput
-  search: SearchQueryInput
   sort: SortOptionsInput
 }
 
@@ -182,7 +181,6 @@ type Order {
 type OrderProduct {
   createdAt: DateTime!
   id: Int!
-  order: Order!
   orderId: String!
   packages: [Package!]!
   product: Product!
@@ -305,10 +303,6 @@ type Role {
 type RolesForUser {
   id: Int!
   roles: [UserRoles!]!
-}
-
-input SearchQueryInput {
-  q: String!
 }
 
 input SortOptionsInput {
